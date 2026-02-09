@@ -36,7 +36,7 @@ pub struct State {
 }
 impl State {
     const DAMPING_CONSTANT: f64 = 1.864;
-    const PRIOR_STRENGTH: f64 = 4.43e5;
+    const PRIOR_STRENGTH: f64 = 3.35e6;
 
     /// Creates a new BIOD state instance with the given options, prior strength, and data set size.
     ///

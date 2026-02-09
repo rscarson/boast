@@ -17,7 +17,7 @@
     \node (start) [startstop] {Determine initial $k$};
     \node (dec1) [decision, below of=start] {Iterations $>$ $k$?};
     \node (stop) [process, right of=dec1, xshift=4cm] {Stop};
-    \node (win) [decision, below of=stop] {$r_{\text{obs}} \ge r_{\text{pass}}$?};
+    \node (win) [decision, below of=stop] {$r_{\text{obs}} \ge \operatorname{pass\_ratio}$?};
     \node (failed) [startstop, below of=win, xshift=-2cm] {Failed};
     \node (passed) [startstop, below of=win, xshift=2cm] {Passed};
     \node (run) [process, below of=dec1] {Run test};

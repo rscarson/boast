@@ -43,8 +43,9 @@
   frame=single
 }
 
-\usepackage{fontspec}   % LuaTeX — good Unicode fontssetmainfont
+\usepackage{fontspec}
 \setmainfont{Latin Modern Roman}
+
 \usepackage{microtype}  % better typography
 \usepackage{siunitx}    % number alignment and scientific notation
 \usepackage{caption}    % multi-paragraph captions & justification
@@ -75,6 +76,10 @@
     topsep=0.5em
 }
 
+\newcommand{\subsubsubsection}[1]{
+  \vspace{1em}\noindent\textbf{#1}\par
+}
+
 % Title info
 \title{How Many Iterations are Enough? Bayesian Iterative Outlier Detection for Conservative Randomized Testing}
 \author{Richard Carson}
@@ -85,14 +90,14 @@
     \maketitle
 
     \begin{abstract}
-        It is a common problem in software testing to determine how many iterations of a randomized test are required to achieve a desired confidence level that edge cases have been adequately covered. Traditional approaches often rely on fixed iteration counts based on heuristic estimates of failure probabilities, which can lead to either insufficient testing or excessive computational costs, or on fuzzing techniques that may not be suitable for use in continuous integration (CI) pipelines due to their resource intensity.
-        
-        Especially for numerical software, where failures may be caused by outliers in the data set, synthetic data with known outlier distributions are often used to evaluate robustness. However, determining the appropriate number of test iterations in such scenarios remains a challenge.
+        Determining the number of iterations required for randomized tests to reliably detect edge cases is a common challenge in software testing. Traditional approaches—fixed iteration counts or fuzzing; either risk insufficient coverage or incur high computational costs, and are often unsuitable for continuous integration (CI) pipelines.
 
-        Our method bridges the gap between sequential analysis and Bayesian methods by providing a Bayesian iterative approach to outlier detection in randomized testing, allowing for adaptive determination of test duration based on observed failure rates and prior knowledge of outlier distributions. This approach not only enhances the reliability of test outcomes but also optimizes resource utilization by tailoring the number of test iterations to the specific characteristics of the data set and the testing environment.
+        For numerical software, failures are frequently caused by extreme data points, and synthetic data with known outlier distributions is used to assess robustness. However, estimating the required number of test iterations in such scenarios remains difficult.
 
-        This paper introduces the Bayesian Iterative Outlier Detection (BIOD) algorithm, and demonstrates that it can effectively balance computational cost with confidence in results, even when parameters are poorly specified. Empirical evaluation shows that BIOD accurately models failure rates under independent, normally distributed errors, making it suitable for resource-constrained settings such as CI pipelines.
+        We introduce Bayesian Iterative Outlier Detection (BIOD), a method that combines sequential analysis with Bayesian updating to adaptively determine test duration based on observed failures and prior knowledge of outlier distributions. BIOD balances computational cost with confidence in test outcomes, is robust to poorly specified parameters, and produces reliable estimates of failure rates. Empirical evaluation shows that BIOD accurately models failures under independent, normally distributed errors, making it well suited for CI and other resource-constrained testing environments.
     \end{abstract}
+
+    \newpage
 
     \input{latex-src/1_introduction.tex}
     \input{latex-src/2_solution.tex}

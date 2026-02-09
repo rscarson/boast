@@ -1,5 +1,66 @@
 \section{Proposed Solution}
-\subsection{Bayesian Iterative Outlier Detection}
+
+\subsection{Overview}
+
+To address the challenges outlined in Section 1, we introduce BIOD (Bayesian Iterative Outlier Detection), a method for efficiently estimating the minimal number of test iterations required to achieve a desired confidence level of detecting failure in code consuming numerical data, particularly while testing with synthetic data with known noise characteristics.
+
+BIOD combines a modified Bayesian update procedure with a frequentist stopping criterion, and incorporates a damping factor to control conservatism in the initial estimate of failure probability. The method is highly tunable, has no systemic bias towards false positives or false negatives, and is robust to mis-specification of its input parameters, making it suitable for a wide range of use cases and risk tolerances.
+
+The output of the test includes both a pass/fail result, and a lower bound confidence interval for the true failure rate among data sets, allowing users to make informed decisions about the reliability of their code and the potential risks associated with it. The method is designed to be computationally efficient, making it suitable for use in CI pipelines and other time-sensitive contexts.
+
+\subsection{Comparison to Other Methods}
+
+Below we outline existing approaches to the problem, and their limitations compared to the proposed BIOD method.
+
+\subsubsubsection{Fixed-budget testing}
+
+\begin{itemize}
+    \item \textit{Approach} - Select a large fixed number of iterations $k$ based on heuristics, and run the test for that many iterations.
+    \item \textit{Advantages} - This method is simple and easy to implement
+    \item \textit{Limitations} - It does not provide any guarantees about the confidence level of detecting failure, and can be computationally expensive if $k$ is set too high. Additionally, in the case of the absence of failure, this method provides no ability to stop early, and thus can waste resources.
+\end{itemize}
+
+\subsubsubsection{Empirical convergence / burn-in heuristics}
+
+\begin{itemize}
+    \item \textit{Approach} - Test until the observed pass ratio converges to a stable value, or until a certain number of consecutive passes are observed.
+    \item \textit{Advantages} - This method can be more efficient than fixed-budget testing, as it allows for early stopping if the test appears to be consistently passing.
+    \item \textit{Limitations} - It can be sensitive to the choice of convergence criteria, and may not provide guarantees about the confidence level of detecting failure. Additionally, very rare failures may not be observed within a reasonable number of iterations, leading to false confidence in the reliability of the code.
+\end{itemize}
+
+\subsubsubsection{Worst-case / adversarial thinking}
+
+\begin{itemize}
+    \item \textit{Approach} - Design tests to specifically target edge cases and potential failure modes, rather than relying on random sampling.
+    \item \textit{Advantages} - This can be effective in catching specific known issues, and can be more efficient than random sampling if the failure modes are well understood.
+    \item \textit{Limitations} - It may not provide a comprehensive assessment of the code's reliability, and can be time-consuming to design and implement. Additionally, it may not be effective in catching unknown failure modes or edge cases that were not anticipated during test design.
+\end{itemize}
+
+\subsubsubsection{Classical statistical power analysis}
+
+\begin{itemize}
+    \item \textit{Approach} - Calculate the required sample size to achieve a desired power level for detecting a specific effect size, based on assumptions about the underlying distribution of the data and the expected failure rate.
+    \item \textit{Advantages} - This can provide a more rigorous basis for determining the number of iterations required, and can be tailored to specific tests and failure modes.
+    \item \textit{Limitations} - It relies heavily on the accuracy of the assumptions made, and may not be robust to mis-specification of parameters. Additionally, it may not be practical in cases where the underlying distribution is unknown or difficult to model and is specific to the particular test being run, making it less generalizable.
+\end{itemize}
+
+\subsubsubsection{Monte Carlo estimation}
+
+\begin{itemize}
+    \item \textit{Approach} - Run a large number of random simulations to estimate the probability of failure, and using this estimate to determine the required number of iterations to achieve a desired confidence level.
+    \item \textit{Advantages} - This can be effective in providing a more accurate estimate of the failure probability, and can be tailored to specific tests and failure modes.
+    \item \textit{Limitations} - It can be computationally expensive, particularly for complex tests or large data sets. Additionally, it may not provide guarantees about the confidence level of detecting failure, and can be sensitive to the choice of simulation parameters.
+\end{itemize}
+
+\subsubsubsection{Fuzzing}
+
+\begin{itemize}
+    \item \textit{Approach} - Generate random or semi-random inputs to test the code, with the goal of uncovering edge cases and potential failure modes.
+    \item \textit{Advantages} - Very comprehensive; can be effective in catching a wide range of issues, including those that were not anticipated during test design.
+    \item \textit{Limitations} - Computationally expensive, as it requires a large number of test iterations to achieve a high confidence level of detecting failure. Additionally, it may not be suitable for use in CI pipelines or other time-sensitive contexts, as it can lead to long test execution times.
+\end{itemize}
+
+\subsection{Algorithm Details}
 
 \begin{figure}[ht!]
     \centering
@@ -8,54 +69,55 @@
     \label{fig:biod_flowchart}
 \end{figure}
 
-We propose a modified Bayesian approach towards the probability of failure in any given data set, and a frequentist stopping criterion based on achieving a desired confidence level that sufficient iterations have been performed to catch edge cases caused by extreme outliers.
+The BIOD method consists of three main phases, depicted in Figure \ref{fig:biod_flowchart}: the estimation phase, the iterative testing phase, and the output phase. 
 
-The algorithm takes the following parameters:
+We begin be defining the following parameters and constants used throughout the algorithm:
+
 \begin{description}[labelwidth=2em, leftmargin=!]
     \item[$n$] The size of the data set under test.
-    \item[$p$] The probability of any individual point being an extreme outlier, chosen very conservatively.
+    \item[$p$] The probability of any individual point being an extreme outlier, chosen conservatively (underestimation of the true risk).
     \item[$q$] The desired confidence that enough iterations have been performed to detect a theoretical bug caused by an extreme outlier.
-    \item[$r_{\text{pass}}$] The required ratio of data sets tested to pass for the overall procedure to be considered successful.
+    \item[$\operatorname{pass\_ratio}$] The required ratio of passes in the observed sample of iterations to consider the test a success.
 \end{description}
 
-It also makes use of a pair of constants, used to tune the behaviour of the model. Derivations for suggested values are included below, in section \ref{sec:derivations}:
 \begin{description}[labelwidth=5em, leftmargin=!]
     \item[$C = 1.864$] A damping constant reflecting the diminishing impact of additional data points on the likelihood of failure due to extreme outliers
-    \item[$p_s = 4.43e5$] A strength parameter for the Bayesian prior, reflecting the confidence in the initial estimate of the failure probability
+    \item[$p_s = 3.35 \cdot 10^{6}$] A strength parameter for the Bayesian prior, reflecting the confidence in the initial estimate of the failure probability
 \end{description}
 
-The user-defined risk parameters are the most critical to the success of the algorithm, as they directly impact the number of iterations required to achieve the desired confidence level. $p$ should be chosen to be a very conservative underestimate of the true pointwise probability of extreme outliers, to ensure that the algorithm does not underestimate the required number of iterations. $q$ should be chosen based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk. Overestimating $p$ can affect accuracy, while underestimation affects only worst-case compute.
+Derivations for suggested values constant are included in Section \ref{sec:derivations}.
 
-For many users with standard use cases, $q$, the desired confidence level, and $r_{\text{pass}}$, the required pass ratio, could be conflated, since they both reflect differing aspects of the user's tolerance for risk. However they are kept separate to allow for more advanced use cases where the user may wish to set a high confidence level for catching edge cases, but a lower pass ratio to allow for known issues in the data set. The advantage of this is that the user can be more certain that any failures observed are due to real issues, rather than random chance.
+$p$ should be selected to be a very conservative underestimate of the true point-wise probability of extreme outliers, to ensure that the algorithm does not underestimate the required number of iterations. 
+
+$q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk. For many users, $\operatorname{pass\_ratio}$ and $q$ could be conflated, since they both reflect differing aspects of the user's tolerance for risk. However they are kept separate to allow for more advanced use cases where the user may wish to set a high confidence level for catching edge cases, but a lower pass ratio to allow for known issues in the data set. The advantage of this is that the user can be more certain that any failures observed are due to real issues, rather than random chance.
 
 The sections below describe the 3-phase approach for the BIOD method.
 
 \subsubsection{Estimation Phase}
-Given $n$ the number of items per set, and $p$ the pointwise lower-bound estimate for outlier frequency, we calculate an initial conservative estimate for the setwise probability of failure $p_\text{fail}$:
+Given $n$ the number of items per set, and $p$ the point-wise lower-bound estimate for outlier frequency, we calculate an initial conservative estimate for the set-wise probability of failure $p_\text{fail}$:
 \begin{align}
-p' = \frac{p}{(1 + C \cdot n \cdot p)}, 
-p_{\text{fail}} = 1 - (1 - p')^n
+    p' = \frac{p}{(1 + C \cdot n \cdot p)}, 
+    p_{\text{fail}} = 1 - (1 - p')^n
 \end{align}
 
-$p'$ is used to model the saturation of the effect of individual outliers on setwise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and the effects of interations between them. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}.
+$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and the effects of iterations between them. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}.
 
 For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure due to extreme outliers.
 
 An initial estimate for the number of iterations $k$ required to achieve the desired confidence $q$ of having seen at least one failure can then be computed as:
 \begin{align}
-k = \left\lceil \frac{\ln(1 - q)}{\ln(1 - p_{\text{fail}})} \right\rceil
+    k = \left\lceil \frac{\ln(1 - q)}{\ln(1 - p_{\text{fail}})} \right\rceil
 \end{align}
 
 Where $p_{\text{fail}}$ is the probability of any single data set failing the test.
 
 Finally, Bayesian priors for $p_{\text{fail}}$ are calculated using $p_s$:
 \begin{align}
-\alpha = p_{\text{fail}} \cdot p_s, \qquad
-\beta = (1 - p_{\text{fail}}) \cdot p_s
+    \alpha = p_{\text{fail}} \cdot p_s, \qquad
+    \beta = (1 - p_{\text{fail}}) \cdot p_s
 \end{align}
 
-For more on the derivation of this form, and the recommended value for $p_s = 4.43e5$, see Section \ref{sec:derivation_ps}.
-
+For more on the derivation of this form, and the recommended value for $p_s = 3.35 \cdot 10^{6}$, see Section \ref{sec:derivation_ps}.
 
 \subsubsection{Iterative Testing Phase}
 
@@ -70,39 +132,62 @@ In this phase we will track the following variables:
 
 The test involves running a blackbox testing routine on a new set of size $n$ in each iteration. We recommend each test utilize a seeded transform on an initial input set.
 
-For each iteration, we first verify if $iterations \ge k$. If so, the test has ended and we move on to the output phase. We also check if a predetermined timeout has elapsed - if so, the testing process ends in failure, as there is insufficient evidence to support a claim.
+For each iteration, perform the following steps:
 
-Otherwise, we increment $iterations$, and perform the blackbox test on the next set; it should determine if a given set passes or fails.
+\subsubsubsection{Stopping Criteria}
 
-If the set passes, we increment $passes$ and $passes\_since\_failure$ and repeat the procedure. If the set fails, we update our estimates:
+The current value for $k$ represents the number of iterations required to have confidence $q$ of having observed at least one failure, given the current estimate for set-wise failure probability $p_{\text{fail}}$. 
+
+Thus, if $iterations \ge k$, we can be confident that we have observed at least one failure if the true failure probability is equal to or greater than our current estimate, and thus we can stop the test and move on to the output phase.
+
+\subsubsubsection{Timeout Criteria}
+To prevent infinite loops in the case of extremely low failure probabilities, we recommend implementing a timeout mechanism. If the total elapsed time for the testing process exceeds a predetermined threshold, the test should terminate and report failure due to insufficient evidence to support a claim.
+
+\subsubsubsection{Update Procedure}
+
+\subsubsubsection{Note:} With our assumptions that $p_{\text{fail}}$ represents a conservative underestimate, and that at least one failing set exists, we can attribute any observed successes prior to a failure to chance, and therefore the update procedure should only be performed on failure, since this is the only time we can be sure that we have observed a real failure rather than just random chance. Additionally, this prevents $k$ from growing in the base-case where no failures exist.
+
 \begin{itemize}
-    \item Increment $alpha$, to represent the detected failure
-    \item Perform $\beta += passes\_since\_failure, passes\_since\_failure = 0$
-    \item Recalculate the estimated setwise failure risk: $p_{\text{fail}} = \frac{\alpha}{\alpha + \beta}$
-    \item Update the number of iterations required: $k = \left\lceil \frac{\ln(1 - q)}{\ln(1 - p_{\text{fail}})} \right\rceil$
-    \item Repeat the iteration procedure
+    \item Increment $iterations$ by 1 to reflect the new test iteration, and perform the blackbox test on the new set. The test should determine if the set passes or fails.
+    \item If the set passes, we increment $passes$ and $passes\_since\_failure$ by 1, and repeat the procedure for the next iteration.
+    \item If the set fails, we update our estimates:
+    \begin{itemize}
+        \item Increment $alpha$ by 1, to represent the detected failure
+        \item Perform $\beta += passes\_since\_failure$, and reset $passes\_since\_failure = 0$
+        \item Recalculate the estimated set-wise failure risk: $p_{\text{fail}} = \frac{\alpha}{\alpha + \beta}$
+        \item Update the number of iterations required: $k = \left\lceil \frac{\ln(1 - q)}{\ln(1 - p_{\text{fail}})} \right\rceil$
+        \item Repeat the iteration procedure
+    \end{itemize}
 \end{itemize}
 
 \subsubsection{Output Phase}
 
-We can calculate the observed ratio of passes to failures $r_obs$ as:
+Once the required evidence has been collected, we can calculate the observed ratio of passes to failures $r_\text{obs}$ as:
 \begin{align}
     r_\text{obs} = \frac{\text{total passes}}{\text{total iterations}}
 \end{align}
 
-If $r_\text{obs} >= r_{\text{pass}}$, the test passes.
+The final test result can then be determined by comparing $r_\text{obs}$ to the user-defined $\operatorname{pass\_ratio}$:
+\[
+    \text{test result} =
+    \begin{cases}
+    \text{pass} & \text{if } r_\text{obs} \ge \operatorname{pass\_ratio} \\
+    \text{fail} & \text{if } r_\text{obs} < \operatorname{pass\_ratio}
+    \end{cases}
+\]
 
-Due to the strong priors used in the Bayesian updates, the final beta distribution will be heavily influenced by the initial estimate of $p_{\text{fail}}$, and thus will not reflect the observed pass ratio. Thus, we can use a new beta distribution to calculate a credible interval for $p_{\text{fail}}$ based on the observed data alone, only using the lower bound - since the upper bound estimate will have been biased by the sample size calculated using our conservative initial estimate.
-
+To return a confidence interval for the true failure rate among data sets, we can construct a new beta distribution using the observed data, with parameters $\alpha' = \text{total failures} + 1$ and $\beta' = \text{total passes} + 1$.
 \begin{align}
     p_{\text{fail,lower}} &= F^{-1}\left(\frac{1 - q}{2}; \text{total failures} + 1, \text{total passes} + 1\right) \\
 \end{align}
 
 where $F^{-1}$ is the Beta quantile function.
 
-The outputs for the test are:
+We do not use the beta distribution from the iterative phase, since this distribution is heavily influenced by the initial conservative estimate for $p_{\text{fail}}$, and thus will not reflect the observed pass ratio. Instead, we use a new beta distribution based solely on the observed data to calculate a credible interval for $p_{\text{fail}}$. Because the goal is to discover the number of iterations in which we expect exactly $1$ failure, only the lower bound of the credible interval is relevant
+
+The outputs for the test are then:
 \begin{itemize}
-    \item The test result: pass / fail
+    \item $\text{test result}$ The test result
     \item $r_\text{obs}$, the observed pass ratio
     \item The calculated lower bound on $p_{\text{fail, true}}$ given $q$
 \end{itemize}
@@ -114,15 +199,15 @@ These can be communicated succinctly as:
 
 The proposed method has several limitations and assumptions worth noting: \begin{itemize}
     \item The size of the data set $n$ must be known in advance, and should remain constant throughout the testing process.
-    \item The method assumes that the probability of extreme outliers is independent and identically distributed across the data set, which may not hold true in all cases.
-    \item Very small $n$ ($< 100$) require a very large number of iterations to converge; this is an expected biproduct of the model used, and we therefore recommend $n >= 100$
+    \item The method assumes that the probability of extreme outliers is independent and normally distributed across the data set, which may not hold true in all cases.
+    \item Very small $n$ ($< 100$) require a very large number of iterations to converge; this is an expected bi-product of the model used, and we therefore recommend $n >= 100$
 \end{itemize}
 
 \subsection{Derivations}\label{sec:derivations}
 
 \subsubsection{The Damping Constant - C}\label{sec:derivation_c}
 
-As $n$ increases, the naiive binomial form $p_{\text{fail}} = 1 - (1 - p')^n$ for expected failure trends to $100\%$. 
+As $n$ increases, the naive binomial form $p_{\text{fail}} = 1 - (1 - p')^n$ for expected failure trends to $100\%$. 
 To resolve this, we introduce the damping fraction $p' = \frac{p}{(1 + C \cdot n \cdot p)}$
 
 We began with the form 
@@ -206,13 +291,13 @@ To verify this value, we generated the $k_{\text{floor}}$ produced by a variety 
 
 From the table we can see that the $C \approx 1.8$ produces values right in our defined practical range for $k_{\text{floor}}$ across a variety of confidence levels, confirming our derived value.
 
-If a usecase requires a different practical range for $k_{\text{floor}}$ or $q$, a value for $C$ should be selected using the formula above (13).
+If a use-case requires a different practical range for $k_{\text{floor}}$ or $q$, a value for $C$ should be selected using the formula above (13).
 
 \subsubsection{Prior Strength - ps}\label{sec:derivation_ps}
 
-\textbf{Isolating the effects of parameters on bias}
+\subsubsubsection{Isolating the effects of parameters on bias}
 
-Our first step to determining a reasonable $p_s$ for a given model was to run the experiment described in Section \ref{sec:ps_experiment1}, varying $p_{\text{fail}}$ and $r_{\text{pass}}$ over the base-case of $p_s = 1$, to determine if either parameter had a significant effect on bias.
+Our first step to determining a reasonable $p_s$ for a given model was to run the experiment described in Section \ref{sec:ps_experiment1}, varying $p_{\text{fail}}$ and $\operatorname{pass\_ratio}$ over the base-case of $p_s = 1$, to determine if either parameter had a significant effect on bias.
 
 These parameters were chosen since they are calculated directly from $n$ and $p$, and thus would allow us to infer the effect of those parameters on bias.
 
@@ -225,15 +310,15 @@ A positive bias indicates the test overestimated the pass rate (false negative),
 
 Our hypothesis was that the delta between the expected level of failure $p_fail$ and the acceptable level of failure $1 - r_\text{pass}$ would be a good predictor of bias.
 
-However, as can be seen in Figure \ref{fig:ps_experiment1}, neither parameter had a measurable effect on bias - which appeared to be randomly distributed around 0 witha constant error regardless of the values of $p_{\text{fail}}$ and $r_{\text{pass}}$. Since $p_{\text{fail}}$ encodes for $k$, and contains both $n$ and $p$, we can infer that none of $n$, $p$, $p_{\text{fail}}$, or $k$ have a significant effect on bias, which appears to be a set function for any inputs into the model given an unknown underlying failure rate.
+However, as can be seen in Figure \ref{fig:ps_experiment1}, neither parameter had a measurable effect on bias - which appeared to be randomly distributed around 0 with a constant error regardless of the values of $p_{\text{fail}}$ and $\operatorname{pass\_ratio}$. Since $p_{\text{fail}}$ encodes for $k$, and contains both $n$ and $p$, we can infer that none of $n$, $p$, $p_{\text{fail}}$, or $k$ have a significant effect on bias, which appears to be a set function for any inputs into the model given an unknown underlying failure rate.
 
-\textbf{Effect of prior strength on bias and compute}
+\subsubsubsection{Effect of prior strength on bias and compute}
 
 Our next step was to run a simplified experiment varying only $p_s$, shown in Figure \ref{fig:ps_experiment2} (a), to determine the effect of $p_s$ on bias. This demonstrated the bias was indeed centered at $0$, with a variance that decreased with increasing $p_s$, plateauing near $p_s = 1e7$.
 
 We next ran the same experiment measuring the fraction of initially estimated iterations required to converge at various values of $p_s$, shown in Figure \ref{fig:ps_experiment3} (b). This demonstrated that increasing $p_s$ also increased the required computation, again reaching an asymptotic limit, this time around $p_s = 1e8$.
 
-\textbf{Modeling the tradeoff between bias and compute}
+\subsubsubsection{Modeling the tradeoff between bias and compute}
 
 Following Experiment 3, we fit the relationship between the performed fraction of maximum iterations and $p_s$ to a pair of Hill equations \cite{Gesztelyi2012} of the form:
 \begin{align}
@@ -273,7 +358,7 @@ The fits had the following parameters:
     \end{itemize}
 \end{itemize}
 
-\textbf{Selecting a recommended prior strength}
+\subsubsubsection{Selecting a recommended prior strength}
 
 We then defined a Lagrangian objective function \cite{Everett1963} to balance the competing goals of minimizing bias and minimizing compute, introducing $\beta$, the tradeoff coefficient between the two objectives representing the relative importance of compute savings versus bias reduction:
 

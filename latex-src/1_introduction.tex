@@ -1,20 +1,57 @@
 \section{Introduction}
 
 \subsection{Problem Statement}
-When testing a polynomial function, or mechanism that retrieves one, it can be helpful to use random transforms on a data set to catch edge cases. However this introduces the probability that any given run of the test will fail to catch such an edge case.
 
-The most common standard approach is to run the test a fixed number of times $k$, determined heuristically by the perceived risk of failure, and the cost of running the test. 
+\subsubsection{Mathematical Setup}
 
-However this approach has several drawbacks:
-\begin{itemize}
-    \item Per-trial risk of failure is the quantity under measurement, thus rendering it difficult to determine a good $k$
-    \item It does not provide a quantifiable confidence that the test has caught edge cases, or that the test has passed with a given level of confidence.
-    \item It must use a conservative estimate for $k$, but cannot adapt to the observed failure rate during testing.
-    \item $k$ must be adjusted to compensate for changes in set-size, the effects of which can be difficult to estimate
-\end{itemize}
+    \subsubsubsection{Population and Sets}
 
-It can be assumed a driving factor determining the rate of failure in such a setup is the presence of extreme outliers in the data set, and the interactions between these outliers. And in the case of artificial data sets, these outliers may be intentionally introduced to test the robustness of the mechanism under test, and thus have a known distribution and frequency.
+    Let $P = \{ X^{(1)}, X^{(2)}, \dots \}$ be a countably infinite population of sets. Each set is of fixed size $n$:
+    \[
+        X^{(j)} = \{ X_0^{(j)}, X_1^{(j)}, \dots, X_{n-1}^{(j)} \}, \quad j \in \mathbb{N}.
+    \]
 
-Failure rate can in many cases be shown to scale with the size of the data set, but with diminishing returns as the data set grows larger.
+    Each element $X_i^{(j)}$ is drawn i.i.d. and has probability $p$ of being an \textbf{extreme outlier} (an event we denote $O_i^{(j)} = 1$ if $X_i^{(j)}$ is an outlier, $0$ otherwise):
+    \[
+        \Pr[ O_i^{(j)} = 1 ] = p
+    \]
 
-While sequential analysis has a rich history in statistics \cite{Wald1945}, and Bayesian methods are well established, their application to software testing, particularly for numerical implementations under known injected noise, remains underexplored.
+    \subsubsubsection{Blackbox Function}
+
+    There is a function
+    \[
+        F : \mathcal{X} \to \{0,1\}, \quad F(X^{(j)}) =
+        \begin{cases}
+        1 & \text{if set passes} \\
+        0 & \text{if set fails}
+        \end{cases}
+    \]
+
+    We assume there exists a relationship between the presence of outliers in ( $X^{(j)}$ ) and failure, but the exact nature of this relationship is unknown:
+    \[
+        \text{unknown mapping } F(X^{(j)}) \sim f(O_0^{(j)}, \dots, O_{n-1}^{(j)})
+    \]
+
+    \subsubsubsection{Sampling Problem}
+
+    Let ( S \subseteq P ) be the subset of sets actually observed/tested.
+
+    Define the event $ E = \{ \exists X^{(j)} \in S : F(X^{(j)}) = 0 \} $, i.e., "we observe at least one failing set."
+
+    The goal is:
+
+    \[
+        \text{Find the minimal } |S| \text{ such that } \Pr[E] \ge \gamma
+    \]
+
+    where ( \gamma \in (0,1) ) is a target confidence (e.g., 0.95).
+
+\subsubsection{Software Testing Perspective}
+
+When testing code consuming numerical data, it is common to use random transforms to produce synthetic data sets for testing.
+
+However, this introduces the probability that any given run of the test will fail to catch edge cases, or fail due to a specific random seed.
+
+Common approaches to mitigate this risk include fixed-budget testing, empirical convergence, fuzzing, or Monte Carlo estimation, all of which have their own drawbacks and limitations.
+
+One major limitation of many approaches is the compute or time cost of running the test, making their use in CI pipelines or other time-sensitive contexts difficult.

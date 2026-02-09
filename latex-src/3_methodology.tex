@@ -132,19 +132,19 @@
     \begin{figure}[ht!]
         \centering
         \import{latex-src/visuals}{p_fail_confidence}
-        \caption{Graph showing the mean and standard deviation of lower-bound confidence intervals on the sample of iterations observed by BIOD from a simulation of 10,000 trials, compared to the simulated true $p_\text{fail}$ for various dataset sizes $n$, and for various values of pointwise $p$. Green was deliberately underestimated, blue was exact, and red was deliberately overestimated. Markers indicate the number of iterations $k$ performed by BIOD at each point.}
+        \caption{Graph showing the mean and standard deviation of lower-bound confidence intervals on the sample of iterations observed by BIOD from a simulation of 10,000 trials, compared to the simulated true $p_\text{fail}$ for various dataset sizes $n$, and for various values of point-wise $p$. Green was deliberately underestimated, blue was exact, and red was deliberately overestimated. Markers indicate the number of iterations $k$ performed by BIOD at each point.}
         \label{fig:p_fail_experiment3}
     \end{figure}
 
     \paragraph{Objective.}
-    To verify that the calculated $p_\text{fail}$ from BIOD provides accurate confidence intervals that encompass the observed $p_\text{fail}$ across a range of dataset sizes $n$ and pointwise $p$ values.
+    To verify that the calculated $p_\text{fail}$ from BIOD provides accurate confidence intervals that encompass the observed $p_\text{fail}$ across a range of dataset sizes $n$ and point-wise $p$ values.
 
     \subsubsection{Setup.}
 
         \begin{itemize}
             \item Vary set size $n$ logarithmically from $1e0$ to $1e5$.
             \item Test $10{,}000$ sets for each combination of $n$, to calculate observed $p_\text{fail}$.
-            \item Run BIOD with the same results to calculate confidence intervals on $p_\text{fail}$ for each value of pointwise $p$:
+            \item Run BIOD with the same results to calculate confidence intervals on $p_\text{fail}$ for each value of point-wise $p$:
             \begin{itemize}
                 \item Underestimate of $p$: $p_\text{outlier} = 1e-4$  
                 \item Exact $p$: $p_\text{outlier} = 0.0027$ (approximate probability of $|x| > 3\sigma$ in a normal distribution)  
@@ -164,29 +164,29 @@
 
     \subsubsection{Hypothesis.}
 
-        The BIOD-calculated confidence intervals for $p_\text{fail}$ are expected to encompass the observed $p_\text{fail}$ for accurate and underestimated pointwise $p$ values, and to potentially miss for overestimated pointwise $p$ values, across all tested set sizes $n$.
+        The BIOD-calculated confidence intervals for $p_\text{fail}$ are expected to encompass the observed $p_\text{fail}$ for accurate and underestimated point-wise $p$ values, and to potentially miss for overestimated point-wise $p$ values, across all tested set sizes $n$.
 
     \subsubsection{Results.}
 
-        As shown in Figure~\ref{fig:p_fail_experiment3}, the calculated confidence intervals for $p_\text{fail}$ from BIOD successfully encompass the observed $p_\text{fail}$ for both all tested set sizes $n$ even for badly specified pointwise $p$ values.
+        As shown in Figure~\ref{fig:p_fail_experiment3}, the calculated confidence intervals for $p_\text{fail}$ from BIOD successfully encompass the observed $p_\text{fail}$ for both all tested set sizes $n$ even for badly specified point-wise $p$ values.
 
-        When pointwise $p$ is underestimated (green), the confidence intervals are narrower and more accurate, closely tracking the observed $p_\text{fail}$.
+        When point-wise $p$ is underestimated (green), the confidence intervals are narrower and more accurate, closely tracking the observed $p_\text{fail}$.
 
-        When pointwise $p$ is exact (blue), the confidence intervals remain accurate, but is much wider than the underestimated case.
+        When point-wise $p$ is exact (blue), the confidence intervals remain accurate, but is much wider than the underestimated case.
 
-        When pointwise $p$ is overestimated (red), the confidence intervals are significantly wider for small $n$ and converge to the exact case as $n$ increases, but still encompass the observed $p_\text{fail}$.
+        When point-wise $p$ is overestimated (red), the confidence intervals are significantly wider for small $n$ and converge to the exact case as $n$ increases, but still encompass the observed $p_\text{fail}$.
 
     \subsubsection{Analysis / Interpretation.}
 
-    These results show that BIOD is robust to badly specified pointwise $p$ parameters, but gains significant accuracy when pointwise $p$ is well specified or conservative (i.e., underestimated).
+    These results show that BIOD is robust to badly specified point-wise $p$ parameters, but gains significant accuracy when point-wise $p$ is well specified or conservative (i.e., underestimated).
 
-    An overly conservative (underestimated) pointwise $p$ leads to tighter confidence intervals, due to the larger number of iterations BIOD performs in this case, improving the accuracy of the $p_\text{fail}$ estimate.
+    An overly conservative (underestimated) point-wise $p$ leads to tighter confidence intervals, due to the larger number of iterations BIOD performs in this case, improving the accuracy of the $p_\text{fail}$ estimate.
 
-    An overly aggressive (overestimated) pointwise $p$ leads to wider confidence intervals, especially for small $n$, due to the smaller number of iterations BIOD performs in this case, reducing the accuracy of the $p_\text{fail}$ estimate. However, as $n$ increases, the effect of pointwise $p$ mis-specification diminishes, and the confidence intervals converge towards those obtained with exact pointwise $p$.
+    An overly aggressive (overestimated) point-wise $p$ leads to wider confidence intervals, especially for small $n$, due to the smaller number of iterations BIOD performs in this case, reducing the accuracy of the $p_\text{fail}$ estimate. However, as $n$ increases, the effect of point-wise $p$ mis-specification diminishes, and the confidence intervals converge towards those obtained with exact point-wise $p$.
 
     \subsubsection{Summary / Recommendation.}
 
-    The BIOD method provides reliable confidence intervals for $p_\text{fail}$ estimates, particularly when pointwise $p$ is well specified or underestimated, but is still useful when pointwise $p$ is overestimated.
+    The BIOD method provides reliable confidence intervals for $p_\text{fail}$ estimates, particularly when point-wise $p$ is well specified or underestimated, but is still useful when point-wise $p$ is overestimated.
 
 \subsection{Experiment 4: Damping Constant Effect on k floor}
 \label{sec:damping_experiment1}
