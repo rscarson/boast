@@ -71,7 +71,7 @@ Below we outline existing approaches to the problem, and their limitations compa
 
 The BIOD method consists of three main phases, depicted in Figure \ref{fig:biod_flowchart}: the estimation phase, the iterative testing phase, and the output phase. 
 
-We begin be defining the following parameters and constants used throughout the algorithm:
+We begin by defining the following parameters and constants used throughout the algorithm:
 
 \begin{description}[labelwidth=2em, leftmargin=!]
     \item[$n$] The size of the data set under test.
@@ -87,24 +87,26 @@ We begin be defining the following parameters and constants used throughout the 
 
 Derivations for suggested values constant are included in Section \ref{sec:derivations}.
 
+$q$ represents the target confidence $\gamma$ of observing a failing set within the sample population ($\Pr[E] \ge q$). It should be selected to be a reasonably conservative value, as defined in Section \ref{sec:derivations}.
+
 $p$ should be selected to be a very conservative underestimate of the true point-wise probability of extreme outliers, to ensure that the algorithm does not underestimate the required number of iterations. 
 
-$q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk. For many users, $\operatorname{pass\_ratio}$ and $q$ could be conflated, since they both reflect differing aspects of the user's tolerance for risk. However they are kept separate to allow for more advanced use cases where the user may wish to set a high confidence level for catching edge cases, but a lower pass ratio to allow for known issues in the data set. The advantage of this is that the user can be more certain that any failures observed are due to real issues, rather than random chance.
+$q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk. For many users, $\operatorname{pass\_ratio}$ and $q$ could be conflated, since they both reflect differing aspects of the user's tolerance for risk. However they are kept separate to allow for more advanced use cases where the user may wish to set a high confidence level for catching edge cases, but a lower pass ratio to allow for known issues or an allowable non-zero failure rate. The advantage of this is that the user can be more certain that any failures observed are due to real issues, rather than random chance.
 
 The sections below describe the 3-phase approach for the BIOD method.
 
 \subsubsection{Estimation Phase}
-Given $n$ the number of items per set, and $p$ the point-wise lower-bound estimate for outlier frequency, we calculate an initial conservative estimate for the set-wise probability of failure $p_\text{fail}$:
+Given $n$ the number of items per set $X$, and $p$ the point-wise lower-bound estimate for outlier frequency, we calculate an initial conservative estimate for the set-wise probability of failure $p_\text{fail}$:
 \begin{align}
     p' = \frac{p}{(1 + C \cdot n \cdot p)}, 
     p_{\text{fail}} = 1 - (1 - p')^n
 \end{align}
 
-$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and the effects of iterations between them. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}.
+$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and the effects of iterations between them. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}. We call the the ratio applied to $p$ the "damping fraction", since it serves to dampen the effect of increasing $n$ on $p_{\text{fail}}$.
 
-For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure due to extreme outliers.
+For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure $F(X)$ due to the presence of extreme outliers in the set.
 
-An initial estimate for the number of iterations $k$ required to achieve the desired confidence $q$ of having seen at least one failure can then be computed as:
+An initial estimate for the number of iterations $k$ required to achieve the desired confidence $q$ of observing at least one failing set in the collected sample $S$ (that is to say the likelihood estimate for $\Pr[E]$ given $q$) can then be computed as:
 \begin{align}
     k = \left\lceil \frac{\ln(1 - q)}{\ln(1 - p_{\text{fail}})} \right\rceil
 \end{align}
@@ -130,7 +132,7 @@ In this phase we will track the following variables:
     \item[$passes\_since\_failure$] A tally of successes since the last failure
 \end{description}
 
-The test involves running a blackbox testing routine on a new set of size $n$ in each iteration. We recommend each test utilize a seeded transform on an initial input set.
+The test involves running a blackbox testing routine on a new set of size $n$, $X^{i} \in P$, in each iteration in order to evaluate $F(X^{i})$. We recommend each test utilize a seeded transform on an initial input set.
 
 For each iteration, perform the following steps:
 
