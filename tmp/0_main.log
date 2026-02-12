@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  10 FEB 2026 08:55
+This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  12 FEB 2026 10:15
  restricted system commands enabled.
  file:line:error style messages enabled.
 **latex-src/0_main.tex
@@ -824,13 +824,13 @@ PGFPlots: reading {results/p_fail_experiment2.csv}
 PGFPlots: reading {results/p_fail_experiment2.csv}
 
 
-
-
 Package pgfplots info on input line 21: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 PGFPlots: reading {results/p_fail_experiment3_bigp.csv}
 PGFPlots: reading {results/p_fail_experiment3_goodp.csv}
 PGFPlots: reading {results/p_fail_experiment3_smallp.csv}
+
+
 
 
 
@@ -845,8 +845,6 @@ ype 'pgfplothandlerlineto'): LUA does not support x filter (yet).
 Package pgfplots info on input line 26: Using 'lua backend=false' for plot 3 (t
 ype 'pgfplothandlerlineto'): LUA does not support x filter (yet).
 PGFPlots: reading {results/damping_experiment2.csv}
-
-
 
 
 PGFPlots: reading {results/bias_experiment1.csv}
@@ -878,6 +876,8 @@ de=log unsupported (yet).
 PGFPlots: reading {results/bias_experiment4_perf.csv}
 PGFPlots: reading {results/bias_experiment4_bias.csv}
 PGFPlots: reading {results/bias_experiment4_balance_points.csv}
+
+
 PGFPlots: reading {results/bias_experiment4_balance_points.csv}
 
 
@@ -917,5 +917,5 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-19>
  ***********
 Package rerunfilecheck Info: File `0_main.out' has not changed.
-(rerunfilecheck)             Checksum: 91C731F89A7C087A2C2F685A27E6EC3F;11358.
+(rerunfilecheck)             Checksum: 3B19637D45E17D7267F16E30AECE002B;11358.
 

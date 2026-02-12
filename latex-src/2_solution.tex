@@ -15,7 +15,7 @@ Below we outline existing approaches to the problem, and their limitations compa
 \subsubsubsection{Fixed-budget testing}
 
 \begin{itemize}
-    \item \textit{Approach} - Select a large fixed number of iterations $k$ based on heuristics, and run the test for that many iterations.
+    \item \textit{Approach} - Select a large fixed number of iterations $k$ based on heuristics, and run the test for that many iterations \cite{myers2011art}.
     \item \textit{Advantages} - This method is simple and easy to implement
     \item \textit{Limitations} - It does not provide any guarantees about the confidence level of detecting failure, and can be computationally expensive if $k$ is set too high. Additionally, in the case of the absence of failure, this method provides no ability to stop early, and thus can waste resources.
 \end{itemize}
@@ -23,7 +23,7 @@ Below we outline existing approaches to the problem, and their limitations compa
 \subsubsubsection{Empirical convergence / burn-in heuristics}
 
 \begin{itemize}
-    \item \textit{Approach} - Test until the observed pass ratio converges to a stable value, or until a certain number of consecutive passes are observed.
+    \item \textit{Approach} - Test until the observed pass ratio converges to a stable value, or until a certain number of consecutive passes are observed \cite{myers2011art} \footnote{Myers et al. describe stopping rules based on reaching estimated error thresholds or elapsed testing time, which is conceptually analogous to monitoring convergence of observed pass/fail ratios.}.
     \item \textit{Advantages} - This method can be more efficient than fixed-budget testing, as it allows for early stopping if the test appears to be consistently passing.
     \item \textit{Limitations} - It can be sensitive to the choice of convergence criteria, and may not provide guarantees about the confidence level of detecting failure. Additionally, very rare failures may not be observed within a reasonable number of iterations, leading to false confidence in the reliability of the code.
 \end{itemize}
@@ -39,17 +39,9 @@ Below we outline existing approaches to the problem, and their limitations compa
 \subsubsubsection{Classical statistical power analysis}
 
 \begin{itemize}
-    \item \textit{Approach} - Calculate the required sample size to achieve a desired power level for detecting a specific effect size, based on assumptions about the underlying distribution of the data and the expected failure rate.
+    \item \textit{Approach} - Calculate the required sample size to achieve a desired power level for detecting a specific effect size, based on assumptions about the underlying distribution of the data and the expected failure rate \cite{cohen1988statistical}.
     \item \textit{Advantages} - This can provide a more rigorous basis for determining the number of iterations required, and can be tailored to specific tests and failure modes.
     \item \textit{Limitations} - It relies heavily on the accuracy of the assumptions made, and may not be robust to mis-specification of parameters. Additionally, it may not be practical in cases where the underlying distribution is unknown or difficult to model and is specific to the particular test being run, making it less generalizable.
-\end{itemize}
-
-\subsubsubsection{Monte Carlo estimation}
-
-\begin{itemize}
-    \item \textit{Approach} - Run a large number of random simulations to estimate the probability of failure, and using this estimate to determine the required number of iterations to achieve a desired confidence level.
-    \item \textit{Advantages} - This can be effective in providing a more accurate estimate of the failure probability, and can be tailored to specific tests and failure modes.
-    \item \textit{Limitations} - It can be computationally expensive, particularly for complex tests or large data sets. Additionally, it may not provide guarantees about the confidence level of detecting failure, and can be sensitive to the choice of simulation parameters.
 \end{itemize}
 
 \subsubsubsection{Fuzzing}

@@ -2,6 +2,16 @@
 
 \subsection{Problem Statement}
 
+\subsubsection{Software Testing Perspective}
+
+When testing code consuming numerical data, it is common to use random transforms to produce synthetic data sets for testing.
+
+However, this introduces the probability that any given run of the test will fail to catch edge cases, or fail due to a specific random seed.
+
+Common approaches to mitigate this risk include fixed-budget testing, empirical convergence, fuzzing, or Monte Carlo estimation, all of which have their own drawbacks and limitations.
+
+One major limitation of many approaches is the compute or time cost of running the test, making their use in CI pipelines or other time-sensitive contexts difficult.
+
 \subsubsection{Mathematical Setup}
 
     \subsubsubsection{Population and Sets}
@@ -45,13 +55,3 @@
     \]
 
     where ( \gamma \in (0,1) ) is a target confidence (e.g., 0.95).
-
-\subsubsection{Software Testing Perspective}
-
-When testing code consuming numerical data, it is common to use random transforms to produce synthetic data sets for testing.
-
-However, this introduces the probability that any given run of the test will fail to catch edge cases, or fail due to a specific random seed.
-
-Common approaches to mitigate this risk include fixed-budget testing, empirical convergence, fuzzing, or Monte Carlo estimation, all of which have their own drawbacks and limitations.
-
-One major limitation of many approaches is the compute or time cost of running the test, making their use in CI pipelines or other time-sensitive contexts difficult.
