@@ -7,4 +7,5 @@ edition = "2024"
 biod = { path = "rust_impl" }
 rand = "0.9"
 rand_distr = "0.5"
+statrs = "0.18.0"
 csv = "1.4.0"

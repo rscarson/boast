@@ -34,7 +34,8 @@ fn main() {
         .with_timeout(Duration::from_secs(60));
 
     let set = normal_set(1000, 42);
-    let runner = biod::Runner::new(&set, options, example_transform, example_test);
+    let data = biod::DataSource::transformed(&set, example_transform);
+    let runner = biod::Runner::new(options, data, example_test);
 
     runner.run();
 }

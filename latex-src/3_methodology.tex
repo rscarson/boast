@@ -522,3 +522,50 @@
     We recommend a prior strength value of $p_s = 3.35 \cdot 10^{6} \pm 1.98 \cdot 10^{4}$ for BIOD, balancing bias reduction and computational cost effectively for most applications.
 
     The small errors on both the curve fits and recommended prior strength values provide confidence in the reliability of this recommendation.
+
+    \subsection{Experiment 8: Quality of the Final Error Rate Estimate}
+
+    \begin{figure}[ht!]
+        \centering
+        \import{latex-src/visuals}{estimate}
+        \caption{Graphs the true $p_\text{fail}$ values against the reported confidence intervals from BIOD for various $n$ (left) and the width of the confidence intervals against $n$ (right).}
+        \label{fig:estimate_experiment1}
+    \end{figure}
+
+    \paragraph{Objective.}
+    To evaluate the quality of the final $p_\text{fail}$ estimate provided by BIOD, by comparing the true $p_\text{fail}$ values from simulations against the confidence intervals reported by BIOD across a range of dataset sizes $n$.
+
+    \subsubsection{Setup.}
+
+    We utilize a standard normal distribution $\mathcal{N}(0, 1)$ to generate synthetic datasets. A Z-test is applied as the pass/fail criterion, where a dataset of size $n$ fails if the absolute Z-score $|Z| = |\frac{1}{\sqrt{n}} \sum x_i| > c$. The threshold $c$ is analytically derived to target specific failure probabilities $p_\text{fail} \in \{0.01, 0.3, 0.9\}$. 
+
+    For each $n$ ranging from $10^0$ to $10^5$, we simulate $100 \cdot k$ datasets (where $k$ is BIOD's sample size) to establish a "ground truth" simulated failure rate. We then run BIOD with a 95\% confidence target and compare its reported Wilson interval bounds against this ground truth.
+
+    \subsubsection{Definition of Metrics.}
+
+    \begin{itemize}
+        \item $p_\text{fail, true}$: The true failure probability obtained from the simulations for each dataset size $n$.
+        \item $p_\text{fail, biod, min}$: The lower bound of the confidence interval for $p_\text{fail}$ reported by BIOD.
+        \item $p_\text{fail, biod, max}$: The upper bound of the confidence interval for $p_\text{fail}$ reported by BIOD.
+        \item Interval width: The width of the confidence interval reported by BIOD, calculated as $p_\text{fail, biod, max} - p_\text{fail, biod, min}$.
+    \end{itemize}
+
+    \subsubsection{Hypothesis.}
+
+    We hypothesize that the true failure probability $p_\text{fail, true}$ will consistently fall within the confidence intervals reported by BIOD across all tested dataset sizes $n$, and that the width of these confidence intervals will increase as $n$ increases, reflecting a small initial estimated $k$.
+
+    \subsubsection{Results.}
+
+    We find that the true failure probability $p_\text{fail, true}$ indeed falls within the confidence intervals reported by BIOD for all tested dataset sizes $n$, confirming the reliability of BIOD's estimates.
+
+    While the width of the confidence intervals increases with $n$, it appears to stabilize between $n = 10^3$ and $n = 10^4$, suggesting that BIOD's sample size is sufficient to provide accurate estimates without excessive widening of the confidence intervals at larger dataset sizes.
+
+    \subsubsection{Analysis / Interpretation.}
+
+    The results confirm that BIOD provides accurate confidence intervals for $p_\text{fail}$ estimates across a wide range of dataset sizes, with the true failure probability consistently falling within these intervals.
+
+    \subsubsection{Summary / Recommendation.}
+
+    BIOD's final $p_\text{fail}$ estimates are reliable and can be confidently used for decision-making, with the understanding that confidence interval widths may increase with larger dataset sizes but remain informative.
+
+    The effect can be mitigated with more conservative point-wise $p$ values, which would lead to larger initial $k$ estimates and thus more iterations performed by BIOD, improving the accuracy of the $p_\text{fail}$ estimate and reducing confidence interval widths at larger dataset sizes.

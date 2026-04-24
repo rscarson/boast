@@ -36,6 +36,10 @@ fn main() {
                 experiments::damping_experiments();
                 return;
             }
+            "--estimate-experiments" => {
+                experiments::estimate_experiments();
+                return;
+            }
             _ => {
                 println!("Unknown argument: {}", arg_vec[1]);
                 return;
@@ -53,7 +57,7 @@ fn main() {
         println!("[ 6 ] p_fail Experiments");
         println!("[ 7 ] Damping Constant Experiments");
         println!("[ 8 ] Simulate true fail probabilities for p_s experiments");
-
+        println!("[ 9 ] Estimate Experiments");
         print!("= ");
         std::io::Write::flush(&mut std::io::stdout()).expect("Failed to flush stdout");
         let mut input = String::new();
@@ -70,6 +74,7 @@ fn main() {
             "6" => experiments::p_fail_experiments(),
             "7" => experiments::damping_experiments(),
             "8" => experiments::simulate_true_fail_probabilities(),
+            "9" => experiments::estimate_experiments(),
             _ => println!("Invalid option"),
         }
     }

@@ -25,6 +25,7 @@ dependencies = [
  "csv",
  "rand 0.9.2",
  "rand_distr 0.5.1",
+ "statrs",
 ]
 
 [[package]]
@@ -32,7 +33,6 @@ name = "biod"
 version = "0.1.0"
 dependencies = [
  "rand 0.9.2",
- "statrs",
 ]
 
 [[package]]

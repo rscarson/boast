@@ -32,6 +32,11 @@ pub fn damping_experiments() {
     damping::experiment_2_c_candidates_table(c_mean, c_stdev);
 }
 
+mod estimate;
+pub fn estimate_experiments() {
+    estimate::experiment_1();
+}
+
 fn export_results<const COLS: usize>(
     filename: impl AsRef<Path>,
     headings: [&str; COLS],

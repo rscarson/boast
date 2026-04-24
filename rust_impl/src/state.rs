@@ -1,5 +1,3 @@
-use statrs::distribution::ContinuousCDF;
-
 use crate::Options;
 
 /// State for Bayesian Iterative Outlier Detection (BIOD)
@@ -265,42 +263,24 @@ impl State {
         self.iterations >= min_iterations
     }
 
-    /// Calculates the bounds for p_fail at the current confidence level q.
-    ///
-    /// Note that only the lower bound is meaningful for BIOD's purposes.
+    /// Calculates the bounds for the estimated true failure rate at a 95% confidence level using the Wilson score interval.
     #[must_use]
-    pub fn p_fail_lower_bound(&self) -> Option<f64> {
-        let bdist = statrs::distribution::Beta::new(
-            (self.iterations - self.passes + 1) as f64,
-            (self.passes + 1) as f64,
-        )
-        .ok()?;
-        Some(bdist.inverse_cdf((1.0 - self.q()) / 2.0))
-    }
-
-    /// Calculates the Clopper-Pearson confidence interval for p_fail at the current confidence level q.
-    ///
-    /// Used in experimental analysis and debugging.
-    pub fn clopper_pearson(&self) -> Option<(f64, f64)> {
-        let alpha = 1.0 - self.options.confidence;
-        let f = self.iterations - self.passes;
+    pub fn p_fail_interval(&self) -> (f64, f64) {
+        // center = (p̂ + z²/(2n)) / (1 + z²/n)
+        // half_width =
+        //  z * sqrt( (p̂(1−p̂)/n) + z²/(4n²) )
+        //  / (1 + z²/n)
+        // p = 1 - pass_ratio
+        let p = 1.0 - self.pass_ratio();
         let k = self.iterations as f64;
-        let s = self.passes as f64;
+        let z = 1.96; // for 95% confidence
+        let center = (p + z * z / (2.0 * k)) / (1.0 + z * z / k);
+        let half_width =
+            z * ((p * (1.0 - p) / k) + (z * z / (4.0 * k * k))).sqrt() / (1.0 + z * z / k);
 
-        let lower = if f == 0 {
-            1.0 - (1.0 - alpha).powf(1.0 / k)
-        } else {
-            let beta = statrs::distribution::Beta::new(f as f64, s + 1.0).ok()?;
-            beta.inverse_cdf(alpha / 2.0)
-        };
+        let p_fail_lower = (center - half_width).max(0.0);
+        let p_fail_upper = (center + half_width).min(1.0);
 
-        let upper = if f == self.iterations {
-            1.0
-        } else {
-            let beta = statrs::distribution::Beta::new(f as f64 + 1.0, s).ok()?;
-            beta.inverse_cdf(1.0 - alpha / 2.0)
-        };
-
-        Some((lower, upper))
+        (p_fail_lower, p_fail_upper)
     }
 }

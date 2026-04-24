@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  12 FEB 2026 10:15
+This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  24 APR 2026 14:54
  restricted system commands enabled.
  file:line:error style messages enabled.
 **latex-src/0_main.tex
@@ -824,13 +824,13 @@ PGFPlots: reading {results/p_fail_experiment2.csv}
 PGFPlots: reading {results/p_fail_experiment2.csv}
 
 
+
+
 Package pgfplots info on input line 21: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 PGFPlots: reading {results/p_fail_experiment3_bigp.csv}
 PGFPlots: reading {results/p_fail_experiment3_goodp.csv}
 PGFPlots: reading {results/p_fail_experiment3_smallp.csv}
-
-
 
 
 
@@ -852,6 +852,8 @@ Package pgfplots info on input line 32: Using 'lua backend=false' for plot 0 (t
 ype 'pgfplothandlerlineto'): LUA does not support error bars (yet).
 Package pgfplots info on input line 46: Using 'lua backend=false' for plot 1 (t
 ype 'pgfplothandlerlineto'): LUA does not support error bars (yet).
+
+
 Package pgfplots info on input line 9: Using 'lua backend=false' for axis: ymod
 e=log unsupported (yet).
 PGFPlots: reading {results/p_fail_histogram.csv}
@@ -876,13 +878,44 @@ de=log unsupported (yet).
 PGFPlots: reading {results/bias_experiment4_perf.csv}
 PGFPlots: reading {results/bias_experiment4_bias.csv}
 PGFPlots: reading {results/bias_experiment4_balance_points.csv}
-
-
 PGFPlots: reading {results/bias_experiment4_balance_points.csv}
 
 
 
 
+
+
+
+
+Package pgfplots info on input line 21: Using 'lua backend=false' for axis: xmo
+de=log unsupported (yet).
+PGFPlots: reading {results/estimate_experiment1_common.csv}
+Package pgfplots info on input line 58: fill between: activating layered graphi
+cs
+\pgf@layerbox@axis background=\box82
+\pgf@layerboxsaved@axis background=\box83
+\pgf@layerbox@axis grid=\box84
+\pgf@layerboxsaved@axis grid=\box85
+\pgf@layerbox@axis ticks=\box86
+\pgf@layerboxsaved@axis ticks=\box87
+\pgf@layerbox@axis lines=\box88
+\pgf@layerboxsaved@axis lines=\box89
+\pgf@layerbox@axis tick labels=\box90
+\pgf@layerboxsaved@axis tick labels=\box91
+\pgf@layerbox@pre main=\box92
+\pgf@layerboxsaved@pre main=\box93
+\pgf@layerbox@axis descriptions=\box94
+\pgf@layerboxsaved@axis descriptions=\box95
+\pgf@layerbox@axis foreground=\box96
+\pgf@layerboxsaved@axis foreground=\box97
+Package pgfplots info on input line 58: Setting layers 'axis background,axis gr
+id,axis ticks,axis lines,axis tick labels,pre main,main,axis descriptions,axis 
+foreground'...
+Package pgfplots info on input line 81: Using 'lua backend=false' for axis: xmo
+de=log unsupported (yet).
+PGFPlots: reading {results/estimate_experiment1_rare.csv}
+PGFPlots: reading {results/estimate_experiment1_common.csv}
+PGFPlots: reading {results/estimate_experiment1_very_common.csv}
 
 
 
@@ -917,5 +950,5 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-19>
  ***********
 Package rerunfilecheck Info: File `0_main.out' has not changed.
-(rerunfilecheck)             Checksum: 3B19637D45E17D7267F16E30AECE002B;11358.
+(rerunfilecheck)             Checksum: 80DFBE0B9A46BA9955B4B446C1856037;12626.
 

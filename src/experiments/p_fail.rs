@@ -1,4 +1,5 @@
 use rand_distr::Distribution;
+use statrs::distribution::ContinuousCDF;
 
 use crate::experiments::export_results;
 
@@ -197,9 +198,7 @@ pub fn experiment_3() {
                     }
                 }
 
-                let lower = biod
-                    .p_fail_lower_bound()
-                    .expect("Failed to get p_fail bounds");
+                let lower = p_fail_lower_bound(&biod).expect("Failed to get p_fail bounds");
                 obs_failure_rate += 1.0 - biod.pass_ratio();
                 bound_low.push(lower);
             }
@@ -261,4 +260,13 @@ fn simulate_set_pass(n: usize, rng: &mut impl rand::Rng, dist: &rand_distr::Norm
         .sum();
 
     outlier_sum.abs() < 3.0
+}
+
+fn p_fail_lower_bound(state: &biod::State) -> Option<f64> {
+    let bdist = statrs::distribution::Beta::new(
+        (state.iterations() - state.passes() + 1) as f64,
+        (state.passes() + 1) as f64,
+    )
+    .ok()?;
+    Some(bdist.inverse_cdf((1.0 - state.q()) / 2.0))
 }

@@ -2,7 +2,7 @@
 
 \subsection{Overview}
 
-To address the challenges outlined in Section 1, we introduce BIOD (Bayesian Iterative Outlier Detection), a method for efficiently estimating the minimal number of test iterations required to achieve a desired confidence level of detecting failure in code consuming numerical data, particularly while testing with synthetic data with known noise characteristics.
+To address the challenges outlined in Section 1, we introduce BIOD (Bayesian Iterative Outlier Detection), a method for efficiently estimating the minimal number of test iterations required to achieve a desired confidence level of detecting failure in code consuming numerical data, particularly while testing against synthetic data with known noise characteristics.
 
 BIOD combines a modified Bayesian update procedure with a frequentist stopping criterion, and incorporates a damping factor to control conservatism in the initial estimate of failure probability. The method is highly tunable, has no systemic bias towards false positives or false negatives, and is robust to mis-specification of its input parameters, making it suitable for a wide range of use cases and risk tolerances.
 
@@ -94,7 +94,7 @@ Given $n$ the number of items per set $X$, and $p$ the point-wise lower-bound es
     p_{\text{fail}} = 1 - (1 - p')^n
 \end{align}
 
-$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and the effects of iterations between them. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}. We call the the ratio applied to $p$ the "damping fraction", since it serves to dampen the effect of increasing $n$ on $p_{\text{fail}}$.
+$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and their effects on iterations $k$. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}. We call the the ratio applied to $p$ the "damping fraction", since it serves to dampen the effect of increasing $n$ on $p_{\text{fail}}$.
 
 For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure $F(X)$ due to the presence of extreme outliers in the set.
 
@@ -147,7 +147,7 @@ To prevent infinite loops in the case of extremely low failure probabilities, we
     \item If the set fails, we update our estimates:
     \begin{itemize}
         \item Increment $alpha$ by 1, to represent the detected failure
-        \item Perform $\beta += passes\_since\_failure$, and reset $passes\_since\_failure = 0$
+        \item Increment $\beta$ by $passes\_since\_failure$, and reset $passes\_since\_failure = 0$
         \item Recalculate the estimated set-wise failure risk: $p_{\text{fail}} = \frac{\alpha}{\alpha + \beta}$
         \item Update the number of iterations required: $k = \left\lceil \frac{\ln(1 - q)}{\ln(1 - p_{\text{fail}})} \right\rceil$
         \item Repeat the iteration procedure
@@ -170,31 +170,38 @@ The final test result can then be determined by comparing $r_\text{obs}$ to the 
     \end{cases}
 \]
 
-To return a confidence interval for the true failure rate among data sets, we can construct a new beta distribution using the observed data, with parameters $\alpha' = \text{total failures} + 1$ and $\beta' = \text{total passes} + 1$.
-\begin{align}
-    p_{\text{fail,lower}} &= F^{-1}\left(\frac{1 - q}{2}; \text{total failures} + 1, \text{total passes} + 1\right) \\
-\end{align}
+In order to provide a robust estimate of the true underlying failure rate amongst data sets from the sample collected by BIOD, we construct a 95\% Wilson score confidence interval \cite{wilson1927}. This method is chosen for its superior performance compared to other methods such as the normal approximation interval, particularly in cases of small sample sizes or extreme proportions, which are common in our testing context.
 
-where $F^{-1}$ is the Beta quantile function.
+The interval bounds are calculated as follows:
+\begin{equation}
+p_{\text{fail, lower/upper}} = \frac{1}{1 + \frac{z^2}{k}} \left[ \hat{p} + \frac{z^2}{2k} \pm z \sqrt{\frac{\hat{p}(1-\hat{p})}{k} + \frac{z^2}{4k^2}} \right]
+\end{equation}
 
-We do not use the beta distribution from the iterative phase, since this distribution is heavily influenced by the initial conservative estimate for $p_{\text{fail}}$, and thus will not reflect the observed pass ratio. Instead, we use a new beta distribution based solely on the observed data to calculate a credible interval for $p_{\text{fail}}$. Because the goal is to discover the number of iterations in which we expect exactly $1$ failure, only the lower bound of the credible interval is relevant
+where:
+\begin{itemize}
+    \item $\hat{p} = 1 - \text{pass\_ratio}$ is the observed failure proportion.
+    \item $k$ is the total number of iterations (sample size).
+    \item $z$ is the $1 - \frac{\alpha}{2}$ quantile of the standard normal distribution (e.g., $1.96$ for 95\% confidence).
+\end{itemize}
+
+This method cleanly seperates the Beta function used to estimate the required size of the sample $k$ from the analysis of the observed sample, which allows for a more robust estimate of the true underlying failure rate among data sets given the purposely conservative nature of the initial estimate for $p_{\text{fail}}$.
 
 The outputs for the test are then:
 \begin{itemize}
     \item $\text{test result}$ The test result
     \item $r_\text{obs}$, the observed pass ratio
-    \item The calculated lower bound on $p_{\text{fail, true}}$ given $q$
+    \item The calculated 95th percentile bounds on $p_{\text{fail, true}}$
 \end{itemize}
 
 These can be communicated succinctly as:
-``$[100 \cdot r_\text{obs}]\%$ of tests passed. $[100 \cdot q]\%$ confidence that the true failure rate among datasets is at least $p_{\text{fail,lower}}$.''
+``$[100 \cdot r_\text{obs}]\%$ of tests passed. With 95\% confidence, the true failure rate is between $[100 \cdot p_{\text{fail, lower}}]\%$ and $[100 \cdot p_{\text{fail, upper}}]\%$.''
 
 \subsection{Limitations}
 
 The proposed method has several limitations and assumptions worth noting: \begin{itemize}
     \item The size of the data set $n$ must be known in advance, and should remain constant throughout the testing process.
     \item The method assumes that the probability of extreme outliers is independent and normally distributed across the data set, which may not hold true in all cases.
-    \item Very small $n$ ($< 100$) require a very large number of iterations to converge; this is an expected bi-product of the model used, and we therefore recommend $n >= 100$
+    \item Very small $n$ ($< 100$) require a very large number of iterations to converge; this is an expected by-product of the model used, and we therefore recommend $n >= 100$
 \end{itemize}
 
 \subsection{Derivations}\label{sec:derivations}
@@ -227,9 +234,11 @@ To find a reasonable value for $C$, we define the reasonable universe of paramet
 For a theoretical set of infinite size, there is naturally a minimum number of iterations under which the test is not useful - $k_{\text{floor}}$.
 There is also a practical maximum number, above which the computation required for extremely large sets becomes infeasible.
 
-We will define that practical range for $k_{\text{floor}}$ to be between 3 and 10 iterations, and the we will define the lowest confidence $q$ we consider reasonably conservative to be $0.8$.
+We will define that practical range for $k_{\text{floor}}$ to be between 3 and 10 iterations, and then we will define the lowest confidence $q$ we consider reasonably conservative to be $0.8$.
 
-We we can analyze the effect of $C$ effect on $k_{\text{floor}}$ as n approaches infinity:
+The practical range for $k_{\text{floor}}$ is defined between the lowest number of iterations that could be considered valid in a test such as the Rule of Three, where $k < 3$ would produce a confidence level above 100\% for any observed pass ratio, and thus would not be useful for any real-world use case.
+
+We can analyze the effect of $C$ effect on $k_{\text{floor}}$ as n approaches infinity:
 \begin{align}
     p' &= \frac{p}{1 + C n p} \\
     p_{\text{fail}} &= 1 - (1 - p')^n
@@ -261,7 +270,7 @@ Solving for $C$:
 \end{align}
 
 
-If we set $k_{\text{floor}} = 3$ as a reasonable minimum number of iterations that could be considered useful for a lower-bound on the value for $q$ we consider reasonably conservative of $q = 0.8$, we find:
+If we set $k_{\text{floor}} = 3$ as a reasonable minimum number of iterations that could be considered useful, given a lower-bound on the value for $q$ we consider reasonably conservative of $q = 0.8$, we find:
 \[
 C = \frac{k_{\text{floor}}}{- \ln(1 - q)} 
 \quad \Rightarrow \quad 
@@ -276,8 +285,7 @@ k_{\text{floor}} &= - (1.864) \, \ln(1 - 0.8) \approx 2.99999 \\
 k_{\text{floor}} &= - (1.864 + 0.5) \, \ln(1 - 0.8) \approx 3.80471
 \end{align*}
 
-Taking into account the effect of ceil in the true calculation of $k_{\text{initial}}$, we can see that variations in $C$ of approximately $\pm 0.5$ around the nominal value of 1.864
-produces a difference of approximately $\pm 1$ in the final value, showing that this method is reasonably robust to small variations in $C$.
+Taking into account the effect of ceil in the true calculation of $k_{\text{initial}}$, we can see that variations in $C$ of approximately $\pm 0.5$ around the nominal value of $1.864$ produce a difference of approximately $\pm 1$ in the final value, showing that this method is reasonably robust to small variations in $C$.
 
 We will therefore recommend $C = 1.864$ as the nominal value for the damping constant.
 
@@ -293,7 +301,7 @@ If a use-case requires a different practical range for $k_{\text{floor}}$ or $q$
 
 Our first step to determining a reasonable $p_s$ for a given model was to run the experiment described in Section \ref{sec:ps_experiment1}, varying $p_{\text{fail}}$ and $\operatorname{pass\_ratio}$ over the base-case of $p_s = 1$, to determine if either parameter had a significant effect on bias.
 
-These parameters were chosen since they are calculated directly from $n$ and $p$, and thus would allow us to infer the effect of those parameters on bias.
+These parameters were chosen since they are calculated directly from $n$ and $p$, and thus allow us to infer the effect of those parameters on bias.
 
 For this and all experiments in this section we define bias as the difference between the test's observed pass ratio $r_\text{obs}$, and the true underlying pass rate for the simulated trial, $r_\text{true}$
 \begin{align}

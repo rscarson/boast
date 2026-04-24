@@ -1,0 +1,124 @@
+\begin{minipage}{0.50\textwidth}
+    \centering
+
+    \begin{tikzpicture}
+    \begin{axis}[
+            xlabel={$n$},
+            ylabel={$p_\text{fail}$},
+            legend pos=north west,
+            legend style={font=\scriptsize},
+            grid=both,
+            minor tick num=4,
+            minor grid style={gray!10, thin},
+            width=\linewidth,
+            height=0.6\linewidth,
+            scaled y ticks = false,
+            scaled x ticks = false,
+            xmode=log,
+            log basis x=10,
+            ymin=0,
+            ymax=1
+    ]
+
+        \pgfplotstableread[col sep=comma]{results/estimate_experiment1_common.csv}\datatable
+
+        % --- Confidence band (draw first so it is behind lines)
+        \addplot[
+            name path=upper,
+            draw=none,
+            forget plot
+        ] table[x=n, y=p_fail_upper] {\datatable};
+
+        \addplot[
+            name path=lower,
+            draw=none,
+            forget plot
+        ] table[x=n, y=p_fail_lower] {\datatable};
+
+        \addplot[
+            fill=blue!20,
+            draw=none,
+            forget plot
+        ] fill between[
+            of=upper and lower
+        ];
+
+        % Manual legend entry for shaded region
+        \addlegendimage{area legend, fill=blue!20}
+        \addlegendentry{BIOD 95\% CI}
+
+        % --- True population line
+        \addplot[
+            thick,
+            black,
+            dashed
+        ] table[x=n, y=p_fail_simulated] {\datatable};
+        \addlegendentry{True $p_\text{fail}$}
+
+    \end{axis}
+    \end{tikzpicture}
+\end{minipage}%
+\hfill
+\begin{minipage}{0.5\textwidth}
+    \centering
+  
+
+    \begin{tikzpicture}
+    \begin{axis}[
+            xlabel={$n$},
+            ylabel={CI width},
+            legend pos=south east,
+            legend style={font=\scriptsize},
+            grid=both,
+            minor tick num=4,
+            minor grid style={gray!10, thin},
+            width=\linewidth,
+            height=0.6\linewidth,
+            scaled y ticks = false,
+            scaled x ticks = false,
+            xmode=log,
+            log basis x=10,
+    ]
+
+        % --- Rare ---
+        \pgfplotstableread[col sep=comma]{results/estimate_experiment1_rare.csv}\datarare
+        \addplot[
+            thick,
+            blue
+        ] table[
+            x=n,
+            y=ci_width
+        ] {\datarare};
+        \addlegendentry{1\% set fail}
+
+        % --- Common ---
+        \pgfplotstableread[col sep=comma]{results/estimate_experiment1_common.csv}\datacommon
+        \addplot[
+            thick,
+            red
+        ] table[
+            x=n,
+            y=ci_width
+        ] {\datacommon};
+        \addlegendentry{30\% set fail}
+
+        % --- Very Common ---
+        \pgfplotstableread[col sep=comma]{results/estimate_experiment1_very_common.csv}\datavery
+        \addplot[
+            thick,
+            green!60!black
+        ] table[
+            x=n,
+            y=ci_width
+        ] {\datavery};
+        \addlegendentry{90\% set fail}
+
+    \end{axis}
+    \end{tikzpicture}
+
+
+
+\end{minipage}
+
+
+
