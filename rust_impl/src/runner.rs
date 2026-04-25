@@ -209,9 +209,8 @@ where
                 Ok(TestResult::Passed(stats)) | Ok(TestResult::Failed(stats)) if print_output => {
                     let fail_low = stats.p_fail_lower_bound * 100.0;
                     let fail_high = stats.p_fail_upper_bound * 100.0;
-                    let confidence = self.state.q() * 100.0;
                     println!(
-                        "\n\nWith {confidence:.2}% confidence, the true failure rate is between {fail_low:.2}% and {fail_high:.2}%.",
+                        "\n\nWith 95% confidence, the true failure rate is between {fail_low:.2}% and {fail_high:.2}%.",
                     );
 
                     let failures = stats.observed_failures;

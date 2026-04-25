@@ -3,15 +3,23 @@ import random
 import sys
 import time
 
-from scipy.stats import beta
-
 DAMPING_CONSTANT = 1.864
 PRIOR_STRENGTH = 3.35e6
 
-def p_fail_lower_bound(a, b, q):
-    """Calculates the lower bound of the (1-q) confidence interval for a Beta(a, b) distribution."""
-    bdist = beta(a, b)
-    return bdist.ppf((1.0 - q) / 2.0)
+def p_fail_interval(pass_ratio, k, z):
+    p = 1 - pass_ratio
+    denom = 1.0 + (z * z) / k
+
+    center = (p + (z * z) / (2.0 * k)) / denom
+    half_width = (
+        z * math.sqrt((p * (1.0 - p) / k) + (z * z) / (4.0 * k * k))
+        / denom
+    )
+
+    p_fail_lower = max(0.0, center - half_width)
+    p_fail_upper = min(1.0, center + half_width)
+
+    return p_fail_lower, p_fail_upper
 
 def biod_k(q, p_fail):
     """Calculates the required number of iterations k for BIOD given confidence q and failure probability p_fail."""
@@ -98,12 +106,13 @@ def biod_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = 
     # Final readout
     #
     failures = iterations - passes
-    p_fail_bound = p_fail_lower_bound(failures + 1, passes + 1, q)
+    ratio = (passes / iterations)
+
+    (p_fail_lower, p_fail_upper) = p_fail_interval(ratio, k, 1.96)
     print(
-        f"{q * 100:.2f}% confident that the true failure rate among datasets is at least {p_fail_bound * 100:.2f}%.\n"
+        f"\nWith 95% confidence, the true failure rate is between {p_fail_lower * 100.0:.2f}% and {p_fail_upper * 100.0:.2f}%.",
     )
 
-    ratio = (passes / iterations)
     print(f"{failures}/{iterations} tests failed ({ratio * 100.0:.2f}% pass)")
 
     if iterations < k:
