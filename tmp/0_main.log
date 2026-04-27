@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  24 APR 2026 14:54
+This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  27 APR 2026 12:54
  restricted system commands enabled.
  file:line:error style messages enabled.
 **latex-src/0_main.tex
@@ -926,6 +926,8 @@ PGFPlots: reading {results/estimate_experiment1_very_common.csv}
 
 
 
+
+
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -950,5 +952,5 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-19>
  ***********
 Package rerunfilecheck Info: File `0_main.out' has not changed.
-(rerunfilecheck)             Checksum: 80DFBE0B9A46BA9955B4B446C1856037;12626.
+(rerunfilecheck)             Checksum: 5016FC13BF7483A3EA42108D9A0E51FB;13530.
 

@@ -12,6 +12,61 @@ The introduction of the damping fraction to temper the number of iterations as s
 
 During the update procedure, instead of a pure Bayesian update after each iteration, we employed a bulk update approach, aggregating evidence from multiple iterations before updating the posterior distribution on failure. This has the advantage of eliminating the possibility of artificially lengthy tests in the case of an absence of failure without compromising the Bayesian nature of the update. 
 
-Finally, the use of a frequentist stopping criterion based on confidence intervals proved effective in ensuring that BIOD halts iterations once sufficient evidence has been gathered. The lower-bound confidence intervals consistently encompassed the true failure probabilities, demonstrating the reliability of this stopping condition. This approach balances the need for computational efficiency with the requirement for accurate estimates, making it a practical choice for real-world applications.
+Finally, the use of a frequentist stopping criterion based on confidence intervals proved effective in ensuring that BIOD halts iterations once sufficient evidence has been gathered. The lower-bound confidence intervals consistently encompassed the true failure probabilities, demonstrating the reliability of this stopping condition. This approach balances the need for computational efficiency with the requirement for accurate estimates, making it a practical choice for real-world applications.algorithm's performance across diverse scenarios.
 
-Future work could explore the extend of the independence assumption made in the BIOD model, particularly in datasets where outliers may exhibit correlations. Additionally, we investigated only the effects of normal and uniform outliers; investigating alternative prior distributions or adaptive prior strength mechanisms could further enhance the algorithm's performance across diverse scenarios.
+\subsection{Future Work}
+
+Future work could explore the extend of the independence assumption made in the BIOD model, particularly in datasets where outliers may exhibit correlations. Additionally, we investigated only the effects of normal outliers; investigating alternative prior distributions or adaptive prior strength mechanisms could potentially enhance the algorithm's performance or applicability to a wider range of failure modes.
+
+\subsection{Example Applications}
+
+\subsubsection{Documented Property Testing}
+
+\paragraph{Scenario} A software library supports two functions, $f$ and $g$, used for the same purpose but with different implementations. The library documentation states that $f$ outperforms $g$ for most inputs in a given metric. A tester wants to verify this claim by running randomized tests on both functions and comparing their performance.
+
+Let $P = \{ X^{(1)}, X^{(2)}, \dots \}$ be a countably infinite population of sets exhibiting the property in which $f$ outperforms $g$. Each set is of fixed size $n$.
+
+Let:
+    \[
+        F : \mathcal{X} \to \{0,1\}, \quad F(X^{(j)}) =
+        \begin{cases}
+        1 & \text{if } f \text{ outperforms } g \text{ on } X^{(j)} \\
+        0 & \text{if } g \text{ outperforms or matches } f \text{ on } X^{(j)}
+        \end{cases}
+    \]
+
+The tester's goal is to determine a reasonable estimate of the proportion of sets in $P$ for which $f$ outperforms $g$, and to do so with a high degree of confidence while maintaining performance needed for CI pipelines. BIOD can be applied in this scenario to adaptively determine the number of iterations needed to reliably estimate the failure probability (i.e., the probability that $g$ outperforms or matches $f$) and to provide a confidence interval on failure.
+
+\subsubsection{Performance Regression Testing}
+
+\paragraph{Scenario} A software development team is implementing a new feature in their application, and they want to ensure that this addition does not degrade the performance of existing functionalities while controlling for outliers in the performance measurements. They decide to use randomized testing to compare the performance of the application before and after the new feature is integrated.
+
+Let $P = \{ X^{(1)}, X^{(2)}, \dots \}$ be a countably infinite population of sets representing inputs to the application, where each set is of fixed size $n$.
+
+Let:
+    \[
+        F : \mathcal{X} \to \{0,1\}, \quad F(X^{(j)}) =
+        \begin{cases}
+        1 & \text{if performance is acceptable on } X^{(j)} \\
+        0 & \text{if performance degrades on } X^{(j)}
+        \end{cases}
+    \]
+
+The team's goal is to estimate the probability of performance degradation due to the new feature, while accounting for the presence of outliers in the performance data. BIOD can be applied here to adaptively determine the number of iterations needed to reliably estimate this probability and to provide confidence intervals, ensuring that the testing process is both efficient and informative for decision-making regarding the new feature's integration.
+
+\subsubsection{Model Robustness Testing}
+
+\paragraph{Scenario} A machine learning model is being developed for a critical application, and the developers want to ensure that the model is robust to outliers in the input data. They decide to use randomized testing to evaluate the model's performance under various conditions, including the presence of extreme outliers.
+
+Let $P = \{ X^{(1)}, X^{(2)}, \dots \}$ be a countably infinite population of sets representing input data for the model, where each set is of fixed size $n$.
+
+Let:
+    \[
+        F : \mathcal{X} \to \{0,1\}, \quad F(X^{(j)}) =
+        \begin{cases}
+        1 & \text{if the model's output is correct for } X^{(j)} \\
+        0 & \text{if the model's output is unacceptable for } X^{(j)}
+        \end{cases}
+    \]
+
+The developers' goal is to estimate the probability that the model produces unacceptable outputs due to outliers in the input data. BIOD can be applied to adaptively determine the number of iterations needed to reliably estimate this probability and to provide confidence intervals, ensuring that the model's robustness is thoroughly evaluated while maintaining efficiency in the testing process.

@@ -6,7 +6,7 @@ To address the challenges outlined in Section 1, we introduce BIOD (Bayesian Ite
 
 BIOD combines a modified Bayesian update procedure with a frequentist stopping criterion, and incorporates a damping factor to control conservatism in the initial estimate of failure probability. The method is highly tunable, has no systemic bias towards false positives or false negatives, and is robust to mis-specification of its input parameters, making it suitable for a wide range of use cases and risk tolerances.
 
-The output of the test includes both a pass/fail result, and a lower bound confidence interval for the true failure rate among data sets, allowing users to make informed decisions about the reliability of their code and the potential risks associated with it. The method is designed to be computationally efficient, making it suitable for use in CI pipelines and other time-sensitive contexts.
+The output of the test includes both a pass/fail result, and a confidence interval for the true failure rate among data sets, allowing users to make informed decisions about the reliability of their code and the potential risks associated with it. The method is designed to be computationally efficient, making it suitable for use in CI pipelines and other time-sensitive contexts.
 
 \subsection{Comparison to Other Methods}
 
@@ -94,7 +94,7 @@ Given $n$ the number of items per set $X$, and $p$ the point-wise lower-bound es
     p_{\text{fail}} = 1 - (1 - p')^n
 \end{align}
 
-$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and their effects on iterations $k$. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}. We call the the ratio applied to $p$ the "damping fraction", since it serves to dampen the effect of increasing $n$ on $p_{\text{fail}}$.
+$p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and their effects on iterations $k$. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}. We call the ratio applied to $p$ the "damping fraction", since it serves to dampen the effect of increasing $n$ on $p_{\text{fail}}$.
 
 For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure $F(X)$ due to the presence of extreme outliers in the set.
 
