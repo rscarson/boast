@@ -33,9 +33,9 @@
             y dir=both,
             y explicit
     ] table[
-        x=n, y=p_fail_biod_min_mean,
-        y error plus=p_fail_biod_min_stdev,
-        y error minus=p_fail_biod_min_stdev,
+        x=n, y=p_fail_boast_min_mean,
+        y error plus=p_fail_boast_min_stdev,
+        y error minus=p_fail_boast_min_stdev,
     ]{\datatablebig};
     \addlegendentry{$p_\text{fail}$ 95\% CI (overestimated $p$)}
     
@@ -45,9 +45,9 @@
             y dir=both,
             y explicit
     ] table[
-        x=n, y=p_fail_biod_min_mean,
-        y error plus=p_fail_biod_min_stdev,
-        y error minus=p_fail_biod_min_stdev,
+        x=n, y=p_fail_boast_min_mean,
+        y error plus=p_fail_boast_min_stdev,
+        y error minus=p_fail_boast_min_stdev,
     ]{\datatablesmall};
     \addlegendentry{$p_\text{fail}$ 95\% CI (underestimated $p$)}
 
@@ -57,9 +57,9 @@
             y dir=both,
             y explicit
     ] table[
-        x=n, y=p_fail_biod_min_mean,
-        y error plus=p_fail_biod_min_stdev,
-        y error minus=p_fail_biod_min_stdev,
+        x=n, y=p_fail_boast_min_mean,
+        y error plus=p_fail_boast_min_stdev,
+        y error minus=p_fail_boast_min_stdev,
     ]{\datatablegood};
 
     % Red series
@@ -73,7 +73,7 @@
             yshift=2pt
         },
         point meta=explicit symbolic
-    ] table[x=n, y expr=1.25, meta=biod_iterations] {\datatablebig};
+    ] table[x=n, y expr=1.25, meta=boast_iterations] {\datatablebig};
 
     % Blue series
     \addplot[
@@ -86,7 +86,7 @@
             yshift=-6pt
         },
         point meta=explicit symbolic
-    ] table[x=n, y expr=1.25, meta=biod_iterations] {\datatablegood};
+    ] table[x=n, y expr=1.25, meta=boast_iterations] {\datatablegood};
 
     % Green series
     \addplot[
@@ -99,6 +99,6 @@
             yshift=-14pt
         },
         point meta=explicit symbolic
-    ] table[x=n, y expr=1.25, meta=biod_iterations] {\datatablesmall};
+    ] table[x=n, y expr=1.25, meta=boast_iterations] {\datatablesmall};
   \end{axis}
 \end{tikzpicture}

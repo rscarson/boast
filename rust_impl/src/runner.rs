@@ -9,7 +9,7 @@ struct PanicHookGuard {
     payload: std::sync::Arc<std::sync::Mutex<String>>,
 }
 
-/// Summary statistics from a completed BIOD run
+/// Summary statistics from a completed BOAST run
 #[derive(Debug, Clone, PartialEq)]
 pub struct Stats {
     /// Estimated lower bound on the failure probability
@@ -44,7 +44,7 @@ impl Stats {
     }
 }
 
-/// Current stage of the BIOD process
+/// Current stage of the BOAST process
 #[derive(Debug, Clone, PartialEq)]
 pub enum TestResult {
     /// Test has completed successfully, meeting the required confidence and pass ratio
@@ -73,7 +73,7 @@ impl TestResult {
     }
 }
 
-/// Errors that can occur during the BIOD process
+/// Errors that can occur during the BOAST process
 #[derive(Debug, Clone, PartialEq)]
 pub enum Error {
     TimedOut,
@@ -122,7 +122,7 @@ where
         }
     }
 
-    /// Run the BIOD process to completion, panicking if the test fails
+    /// Run the BOAST process to completion, panicking if the test fails
     ///
     /// Will print output during the process,
     /// including the final confidence and failure rate estimates,
@@ -131,13 +131,13 @@ where
         self.inner_run(true, true).expect("Test failed");
     }
 
-    /// Get a reference to the current state of the BIOD process, which includes iteration counts,
+    /// Get a reference to the current state of the BOAST process, which includes iteration counts,
     /// pass counts, and Bayesian parameters.
     pub fn state(&self) -> &State {
         &self.state
     }
 
-    /// Run the BIOD process to completion, returning a Result indicating the outcome
+    /// Run the BOAST process to completion, returning a Result indicating the outcome
     ///
     /// Will not print any output during the process,
     /// but will still capture the seed of the last failing test if applicable.

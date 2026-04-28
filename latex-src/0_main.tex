@@ -81,7 +81,7 @@
 }
 
 % Title info
-\title{How Many Iterations are Enough? Bayesian Iterative Outlier Detection for Conservative Randomized Testing}
+\title{How Many Iterations are Enough? Bayesian Outlier-Aware Sequential Testing for Conservative Randomized Testing}
 \author{Richard Carson}
 \date{\today}
 
@@ -92,9 +92,7 @@
     \begin{abstract}
         Determining the number of iterations required for randomized tests to reliably detect edge cases is a common challenge in software testing. Traditional approaches, such as fixed iteration counts or fuzzing either risk insufficient coverage or incur high computational costs, and are often unsuitable for continuous integration (CI) pipelines.
 
-        For numerical software, failures are frequently caused by extreme data points, and synthetic data with known outlier distributions is used to assess robustness. However, estimating the required number of test iterations in such scenarios remains difficult.
-
-        We introduce Bayesian Iterative Outlier Detection (BIOD), a method that combines sequential analysis with Bayesian updating to adaptively determine test duration based on observed failures and prior knowledge of outlier distributions. BIOD balances computational cost with confidence in test outcomes, is robust to poorly specified parameters, and produces reliable estimates of failure rates. Empirical evaluation shows that BIOD accurately models failures under independent, normally distributed errors, making it well suited for CI and other resource-constrained testing environments.
+        We introduce Bayesian Outlier-Aware Sequential Testing (BOAST), a method that combines sequential analysis with event-driven Bayesian inference to adaptively determine test duration based on observed failures and domain knowledge of the data input to the system under test. BOAST balances computational cost with confidence in test outcomes, remains robust under misspecified parameters, yields prior-independent test bias, and provides reliable 95\% confidence intervals for the underlying failure rate. Empirical evaluation demonstrates strong performance under simulated independent normally distributed errors, suggesting suitablility for CI and other resource-constrained testing environments. We also discuss the implications of our findings for broader software testing practices and potential avenues for future research.
     \end{abstract}
 
     \newpage

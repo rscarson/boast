@@ -5,10 +5,10 @@ use crate::experiments::export_results;
 
 const ITERATIONS: usize = 10_000;
 
-/// Compare observed p_fail over various n to predicted p_fail from BIOD
+/// Compare observed p_fail over various n to predicted p_fail from BOAST
 ///
 /// We need to make sure that we underestimate the failure probability p_fail
-/// as n increases, since this is critical to the correctness of BIOD.
+/// as n increases, since this is critical to the correctness of BOAST.
 pub fn experiment_1() {
     const FILENAME: &str = "p_fail_experiment1.csv";
     const HEADINGS: [&str; 3] = ["n", "p_fail_simulated", "p_fail_predicted"];
@@ -39,9 +39,9 @@ pub fn experiment_1() {
         }
         let p_fail = 1.0 - (pass_count as f64 / ITERATIONS as f64);
 
-        // Determine predicted p_fail from BIOD
-        let biod = biod::State::new(
-            biod::Options {
+        // Determine predicted p_fail from BOAST
+        let boast = boast::State::new(
+            boast::Options {
                 confidence: 0.99,
                 outlier_probability: 0.0027, // Approximate probability of a point being outside 3 std devs in a normal distribution
                 pass_ratio: 0.0,
@@ -50,7 +50,7 @@ pub fn experiment_1() {
             n,
         );
 
-        let p_predicted = biod.p_fail();
+        let p_predicted = boast.p_fail();
         results.push([n as f64, p_fail, p_predicted]);
     }
 
@@ -58,9 +58,9 @@ pub fn experiment_1() {
     export_results(FILENAME, HEADINGS, &results);
 }
 
-/// Compare oberved number of iterations k to failure vs BIOD predicted k to failure
+/// Compare oberved number of iterations k to failure vs BOAST predicted k to failure
 ///
-/// We need to see if the biod predicted number of iterations k would likely contain
+/// We need to see if the boast predicted number of iterations k would likely contain
 /// a failure, given the observed number of iterations k to failure.
 pub fn experiment_2() {
     const FILENAME: &str = "p_fail_experiment2.csv";
@@ -102,9 +102,9 @@ pub fn experiment_2() {
             / (k_obs.len() as f64))
             .sqrt();
 
-        // Determine predicted k from BIOD
-        let biod = biod::State::new(
-            biod::Options {
+        // Determine predicted k from BOAST
+        let boast = boast::State::new(
+            boast::Options {
                 confidence: 0.99,
                 outlier_probability: 0.0027, // Approximate probability of a point being outside 3 std devs in a normal distribution
                 pass_ratio: 0.0,
@@ -112,7 +112,7 @@ pub fn experiment_2() {
             },
             n,
         );
-        let k_predicted = biod.k(biod.p_fail());
+        let k_predicted = boast.k(boast.p_fail());
 
         results.push([n as f64, k_obs_mean, k_obs_stdev, k_predicted as f64]);
     }
@@ -123,16 +123,16 @@ pub fn experiment_2() {
 
 /// Now we test the predictions for p_fail
 /// First for all trials we will save the observed p_fail and get a 95% confidence interval
-/// We will also use all tries to run a BIOD test and compare the 95% confidence interval from it's beta distribution
+/// We will also use all tries to run a BOAST test and compare the 95% confidence interval from it's beta distribution
 pub fn experiment_3() {
     const HEADINGS: [&str; 7] = [
         "n",
         "p",
         "p_fail_true",
-        "p_fail_biod_min_mean",
-        "p_fail_biod_min_stdev",
+        "p_fail_boast_min_mean",
+        "p_fail_boast_min_stdev",
         "p_fail_observed",
-        "biod_iterations",
+        "boast_iterations",
     ];
     const P_VALUES: [f64; 3] = [1e-4, 0.0027, 0.01];
 
@@ -158,10 +158,10 @@ pub fn experiment_3() {
         let p_fail = 1.0 - (passes as f64 / ITERATIONS as f64);
 
         for pi in 0..P_VALUES.len() {
-            // Setup BIOD with this p value
+            // Setup BOAST with this p value
             let p = P_VALUES[pi];
-            let mut biod = biod::State::new(
-                biod::Options {
+            let mut boast = boast::State::new(
+                boast::Options {
                     confidence: 0.95,
                     outlier_probability: p,
                     pass_ratio: 0.95,
@@ -171,10 +171,10 @@ pub fn experiment_3() {
             );
 
             // Skip this p if initial_k is too large for ITERATIONS
-            if biod.initial_k() * 2 > ITERATIONS {
+            if boast.initial_k() * 2 > ITERATIONS {
                 println!(
                     " Skipping p = {p:.6} as initial_k ({}) is too large for ITERATIONS ({})",
-                    biod.initial_k(),
+                    boast.initial_k(),
                     ITERATIONS
                 );
                 continue;
@@ -185,25 +185,25 @@ pub fn experiment_3() {
             // We know the sim has at least double the initial_k iterations
             // So we can take a set of samples and average the results
             // simply use a start position offset by a fraction of initial_k
-            const BIOD_SAMPLES: usize = 5;
-            let step_size = biod.initial_k() / BIOD_SAMPLES;
-            for i in 0..BIOD_SAMPLES {
-                biod.reset();
+            const BOAST_SAMPLES: usize = 5;
+            let step_size = boast.initial_k() / BOAST_SAMPLES;
+            for i in 0..BOAST_SAMPLES {
+                boast.reset();
                 let start = i * step_size;
                 for &result in &simulation_results[start..] {
-                    if biod.should_stop() {
+                    if boast.should_stop() {
                         break;
                     } else {
-                        biod.record_result(result);
+                        boast.record_result(result);
                     }
                 }
 
-                let lower = p_fail_lower_bound(&biod).expect("Failed to get p_fail bounds");
-                obs_failure_rate += 1.0 - biod.pass_ratio();
+                let lower = p_fail_lower_bound(&boast).expect("Failed to get p_fail bounds");
+                obs_failure_rate += 1.0 - boast.pass_ratio();
                 bound_low.push(lower);
             }
 
-            obs_failure_rate /= BIOD_SAMPLES as f64;
+            obs_failure_rate /= BOAST_SAMPLES as f64;
 
             let bound_low_mean = bound_low.iter().cloned().sum::<f64>() / (bound_low.len() as f64);
             let bound_low_stdev = bound_low
@@ -212,7 +212,7 @@ pub fn experiment_3() {
                 .sum::<f64>()
                 / (bound_low.len() as f64);
 
-            let iterations = biod.iterations();
+            let iterations = boast.iterations();
             results[pi].push([
                 n as f64,
                 p,
@@ -223,7 +223,7 @@ pub fn experiment_3() {
                 iterations as f64,
             ]);
             println!(
-                " p = {p:.6}, Simulated p_fail: {p_fail:.5}, BIOD 95% CI: [{bound_low_mean:.5} +/- {bound_low_stdev:.5}], Observed p_fail: {obs_failure_rate:.5}, iters = {iterations}"
+                " p = {p:.6}, Simulated p_fail: {p_fail:.5}, BOAST 95% CI: [{bound_low_mean:.5} +/- {bound_low_stdev:.5}], Observed p_fail: {obs_failure_rate:.5}, iters = {iterations}"
             );
         }
     }
@@ -262,7 +262,7 @@ fn simulate_set_pass(n: usize, rng: &mut impl rand::Rng, dist: &rand_distr::Norm
     outlier_sum.abs() < 3.0
 }
 
-fn p_fail_lower_bound(state: &biod::State) -> Option<f64> {
+fn p_fail_lower_bound(state: &boast::State) -> Option<f64> {
     let bdist = statrs::distribution::Beta::new(
         (state.iterations() - state.passes() + 1) as f64,
         (state.passes() + 1) as f64,

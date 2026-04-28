@@ -1,19 +1,19 @@
 use crate::Options;
 
-/// State for Bayesian Iterative Outlier Detection (BIOD)
+/// State for Bayesian Outlier-Aware Sequential Testing (BOAST)
 ///
-/// Keeps track of the current state of the BIOD process, including iteration counts,
+/// Keeps track of the current state of the BOAST process, including iteration counts,
 /// pass counts, and Bayesian parameters.
 #[derive(Debug, Clone, Copy)]
 pub struct State {
     /// The size of the data set under test
     n: usize,
 
-    /// Options for the BIOD process
+    /// Options for the BOAST process
     p_s: f64,
     options: Options,
 
-    /// The time at which the BIOD process started. Used for timeout calculations.
+    /// The time at which the BOAST process started. Used for timeout calculations.
     start_time: std::time::Instant,
 
     //
@@ -36,13 +36,13 @@ impl State {
     const DAMPING_CONSTANT: f64 = 1.864;
     const PRIOR_STRENGTH: f64 = 3.35e6;
 
-    /// Creates a new BIOD state instance with the given options, prior strength, and data set size.
+    /// Creates a new BOAST state instance with the given options, prior strength, and data set size.
     ///
     /// Only use this if you want to specify a custom prior strength.
     /// Otherwise, use `new()`.
     #[must_use]
     pub fn with_p_s(options: Options, p_s: f64, n: usize) -> Self {
-        let mut biod = Self {
+        let mut boast = Self {
             n,
             p_s,
             options,
@@ -63,19 +63,19 @@ impl State {
         //  `p_fail = 1 - (1 - p')^n`
         //
         //  And use `p_s` to calculate the prior alpha and beta values for the Bayesian update
-        let p_prime = biod.p_prime();
-        let p_fail = 1.0 - (1.0 - p_prime).powi(biod.n as _);
+        let p_prime = boast.p_prime();
+        let p_fail = 1.0 - (1.0 - p_prime).powi(boast.n as _);
 
         // Calculate initial k
-        biod.initial_k = biod.k(p_fail);
-        biod.current_k = biod.initial_k;
+        boast.initial_k = boast.k(p_fail);
+        boast.current_k = boast.initial_k;
 
-        biod.a = p_fail * biod.p_s();
-        biod.b = (1.0 - p_fail) * biod.p_s();
-        biod
+        boast.a = p_fail * boast.p_s();
+        boast.b = (1.0 - p_fail) * boast.p_s();
+        boast
     }
 
-    /// Creates a new BIOD state instance with the given options and data set size.
+    /// Creates a new BOAST state instance with the given options and data set size.
     #[must_use]
     pub fn new(options: Options, n: usize) -> Self {
         Self::with_p_s(options, Self::PRIOR_STRENGTH, n)
@@ -92,7 +92,7 @@ impl State {
         self.current_k = self.k(p_fail);
     }
 
-    /// Returns the options used for this BIOD state.
+    /// Returns the options used for this BOAST state.
     #[must_use]
     pub fn options(&self) -> Options {
         self.options
@@ -227,7 +227,7 @@ impl State {
         self.passes as f64 / self.iterations as f64
     }
 
-    /// Determines whether the BIOD process has timed out based on the configured timeout option.
+    /// Determines whether the BOAST process has timed out based on the configured timeout option.
     #[must_use]
     pub fn has_timed_out(&self) -> bool {
         if let Some(timeout) = self.options.timeout {

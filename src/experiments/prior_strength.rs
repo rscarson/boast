@@ -221,8 +221,8 @@ fn trial(ratio_pass: f64, n: usize, p_s: f64, outlier_probability: f64) -> Trial
     const ITERS: usize = 10_000;
 
     let mut rng = rng();
-    let mut state = biod::State::with_p_s(
-        biod::Options {
+    let mut state = boast::State::with_p_s(
+        boast::Options {
             confidence: 0.95,
             outlier_probability,
             pass_ratio: ratio_pass,

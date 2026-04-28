@@ -29,13 +29,13 @@ fn example_test(data: &[f64]) {
 }
 
 fn main() {
-    let options = biod::Options::new(0.95, 0.00001)
+    let options = boast::Options::new(0.95, 0.00001)
         .with_pass_ratio(0.99)
         .with_timeout(Duration::from_secs(60));
 
     let set = normal_set(1000, 42);
-    let data = biod::DataSource::transformed(&set, example_transform);
-    let runner = biod::Runner::new(options, data, example_test);
+    let data = boast::DataSource::transformed(&set, example_transform);
+    let runner = boast::Runner::new(options, data, example_test);
 
     runner.run();
 }

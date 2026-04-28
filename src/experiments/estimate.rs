@@ -3,7 +3,7 @@ use statrs::distribution::ContinuousCDF;
 
 use crate::experiments::export_results;
 
-/// Compare estimated wald p_fail interval over various n to predicted p_fail from BIOD
+/// Compare estimated wald p_fail interval over various n to predicted p_fail from BOAST
 pub fn experiment_1() {
     const HEADINGS: [&str; 6] = [
         "n",
@@ -36,7 +36,7 @@ pub fn experiment_1() {
     );
 }
 
-/// Compare estimated wald p_fail interval over various n to predicted p_fail from BIOD
+/// Compare estimated wald p_fail interval over various n to predicted p_fail from BOAST
 pub fn experiment_1_for_fail(p_fail: f64) -> Vec<[f64; 6]> {
     // Normal distribution with mean 0 and stddev 1
     // Outliers are points with abs(value) > 3.0
@@ -58,8 +58,8 @@ pub fn experiment_1_for_fail(p_fail: f64) -> Vec<[f64; 6]> {
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
 
         // Determine how many datasets we need
-        let state = biod::State::new(
-            biod::Options {
+        let state = boast::State::new(
+            boast::Options {
                 confidence: 0.95,
                 outlier_probability: 0.0027, // Approximate probability of a point being outside 3 std devs in a normal distribution
                 pass_ratio: 0.0,
@@ -85,9 +85,9 @@ pub fn experiment_1_for_fail(p_fail: f64) -> Vec<[f64; 6]> {
         }
         let p_fail = 1.0 - (pass_count as f64 / total_datasets as f64);
 
-        // Determine sampled p_fail from BIOD
-        let data = biod::DataSource::iterable(n, datasets.into_iter());
-        let runner = biod::Runner::new(biod::Options::new(0.95, 0.0027), data, |data| {
+        // Determine sampled p_fail from BOAST
+        let data = boast::DataSource::iterable(n, datasets.into_iter());
+        let runner = boast::Runner::new(boast::Options::new(0.95, 0.0027), data, |data| {
             let passed = z_test(c, data);
             assert!(passed, "Test failed: dataset did not pass");
         });

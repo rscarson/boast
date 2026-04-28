@@ -1,8 +1,8 @@
 use std::time::Duration;
 
-/// Configuration for Bayesian Iterative Outlier Detection (BIOD)
+/// Configuration for Bayesian Outlier-Aware Sequential Testing (BOAST)
 ///
-/// Determines the parameters for the BIOD process, including confidence level, outlier probability,
+/// Determines the parameters for the BOAST process, including confidence level, outlier probability,
 /// belief strength, pass ratio, and optional timeout.
 ///
 /// # Fields
@@ -10,7 +10,7 @@ use std::time::Duration;
 /// - `outlier_probability`: The expected probability (`p`) of an outlier able to trigger a failure in any given point
 /// - `belief_strength`: The strength of belief (`p_s`) in the initial outlier probability
 /// - `pass_ratio`: The required ratio of passing tests to total tests for the overall test to be considered a pass
-/// - `timeout`: An optional timeout duration for the entire BIOD process
+/// - `timeout`: An optional timeout duration for the entire BOAST process
 ///
 /// Below are tables showing the initial required iterations (`k`) for various dataset sizes (`n`) and outlier probabilities (`p`),
 /// For commonly used confidence levels (`q`).
@@ -70,7 +70,7 @@ pub struct Options {
     /// 1.0 will cause the test to fail immediately on the first failure.
     pub pass_ratio: f64,
 
-    /// An optional timeout duration for the entire BIOD process
+    /// An optional timeout duration for the entire BOAST process
     /// If specified, the test will end after this duration even if the required number of iterations has not been reached.
     ///
     /// If the timeout is reached before the required number of iterations, the test will be considered a failure.
@@ -99,7 +99,7 @@ impl Options {
 
     /// Sets the timeout for the `Options`.
     ///
-    /// The timeout is an optional duration for the entire BIOD process.
+    /// The timeout is an optional duration for the entire BOAST process.
     /// If specified, the test will end after this duration even if the required number of iterations has not been reached.
     pub fn with_timeout(mut self, timeout: Duration) -> Self {
         self.timeout = Some(timeout);

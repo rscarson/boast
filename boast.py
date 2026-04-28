@@ -21,16 +21,16 @@ def p_fail_interval(pass_ratio, k, z):
 
     return p_fail_lower, p_fail_upper
 
-def biod_k(q, p_fail):
-    """Calculates the required number of iterations k for BIOD given confidence q and failure probability p_fail."""
+def boast_k(q, p_fail):
+    """Calculates the required number of iterations k for BOAST given confidence q and failure probability p_fail."""
     return math.ceil(abs(math.log(1.0 - q) / math.log(1.0 - p_fail)))
 
-def biod_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = DAMPING_CONSTANT, p_s = PRIOR_STRENGTH):
+def boast_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = DAMPING_CONSTANT, p_s = PRIOR_STRENGTH):
     """
-    Runs the BIOD algorithm on the given data.
+    Runs the BOAST algorithm on the given data.
 
     Parameters:
-        - data: The dataset to run BIOD on.
+        - data: The dataset to run BOAST on.
         - f_transform: Function to transform a set = fn(dataset, seed) -> transformed_dataset
         - f_test: Function to test a set = fn(transformed_dataset) -> bool (pass/fail)
         - q: Desired confidence level (e.g., 0.95 for 95% confidence)
@@ -49,7 +49,7 @@ def biod_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = 
     p_fail = 1.0 - (1.0 - p_prime)**n
 
     # Calculate initial k
-    k = biod_k(q, p_fail)
+    k = boast_k(q, p_fail)
     k_initial = k
 
     # Initialize priors
@@ -74,7 +74,7 @@ def biod_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = 
             break
 
         if timeout_s is not None and (time.monotonic() - start_time) > timeout_s:
-            print("\nTimeout reached, terminating BIOD run.")
+            print("\nTimeout reached, terminating BOAST run.")
             break
 
         print(f"\rFinished {iterations} / {k} iterations. {iterations - passes} failures reported.", end='')
@@ -98,7 +98,7 @@ def biod_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = 
 
             last_failing_seed = seed
         p_fail = alpha / (alpha + beta)
-        k = biod_k(q, p_fail)
+        k = boast_k(q, p_fail)
 
     print(f"\rFinished {iterations} / {k} iterations. {iterations - passes} failures reported.\n")
 
@@ -116,21 +116,21 @@ def biod_run(data, f_transform, f_test, q, p, pass_ratio, timeout_s = None, C = 
     print(f"{failures}/{iterations} tests failed ({ratio * 100.0:.2f}% pass)")
 
     if iterations < k:
-        print(f"BIOD terminated early after {iterations} iterations - not enough evidence to reach required confidence.")
+        print(f"BOAST terminated early after {iterations} iterations - not enough evidence to reach required confidence.")
         return False
 
     if ratio < pass_ratio:
-        print(f"BIOD failed to meet required pass ratio of {pass_ratio * 100:.2f}%.")
+        print(f"BOAST failed to meet required pass ratio of {pass_ratio * 100:.2f}%.")
         print(f"Observed pass ratio: {ratio * 100:.2f}%.")
         print(f"Last failing seed: {last_failing_seed}.")
         return False
 
-    print("BIOD passed successfully.")
+    print("BOAST passed successfully.")
     return True
 
 ##
 ##
-## Example run of BIOD
+## Example run of BOAST
 ##
 ##
 ##
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     seed = random.getrandbits(64)
     dataset = normal_set(1000, seed)
 
-    biod_run(
+    boast_run(
         data=dataset,
         f_transform=example_transform,
         f_test=example_test,

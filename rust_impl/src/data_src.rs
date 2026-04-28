@@ -1,6 +1,6 @@
 use crate::Error;
 
-/// Source of data for a BIOD run, either transformed from an original dataset
+/// Source of data for a BOAST run, either transformed from an original dataset
 /// or generated from scratch
 pub enum DataSource<'src, T> {
     /// Original dataset with a transformation function to produce test datasets

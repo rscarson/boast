@@ -33,3 +33,26 @@ pub fn assert_randomized<'src, T, FTest>(
     let runner = Runner::new(options, data.into(), test);
     runner.run();
 }
+
+/// Convenience function to run a test with the given options and data source, and return the results, without panicking or printing anything.
+///
+/// This is the equivalent of:
+/// ```rust
+/// let runner = Runner::new(options, data.into(), test);   
+/// runner.try_run();
+/// ```
+///
+/// # Errors
+/// This function will return an error something goes wrong during the test, such as a timeout, or issue with the data source.
+pub fn test<'src, T, FTest>(
+    options: Options,
+    data: impl Into<DataSource<'src, T>>,
+    test: FTest,
+) -> Result<TestResult, Error>
+where
+    T: std::panic::RefUnwindSafe + 'src,
+    FTest: Fn(&[T]) + std::panic::RefUnwindSafe,
+{
+    let runner = Runner::new(options, data.into(), test);
+    runner.try_run()
+}

@@ -18,10 +18,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
-name = "baysian_iterative_outlier_detection"
+name = "boast"
 version = "0.1.0"
 dependencies = [
- "biod",
+ "boast",
  "csv",
  "rand 0.9.4",
  "rand_distr 0.5.1",
@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "biod"
+name = "boast"
 version = "0.1.0"
 dependencies = [
  "rand 0.9.4",

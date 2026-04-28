@@ -2,15 +2,15 @@
 
 \subsection{Overview}
 
-To address the challenges outlined in Section 1, we introduce BIOD (Bayesian Iterative Outlier Detection), a method for efficiently estimating the minimal number of test iterations required to achieve a desired confidence level of detecting failure in code consuming numerical data, particularly while testing against synthetic data with known noise characteristics.
+To address the challenges outlined in Section 1, we introduce BOAST (Bayesian Outlier-Aware Sequential Testing), a method for efficiently estimating the minimal number of test iterations required to achieve a desired confidence level of detecting failure in code consuming numerical data, particularly while testing against synthetic data with known noise characteristics.
 
-BIOD combines a modified Bayesian update procedure with a frequentist stopping criterion, and incorporates a damping factor to control conservatism in the initial estimate of failure probability. The method is highly tunable, has no systemic bias towards false positives or false negatives, and is robust to mis-specification of its input parameters, making it suitable for a wide range of use cases and risk tolerances.
+BOAST combines a modified Bayesian update procedure with a frequentist stopping criterion, and incorporates a damping factor to control conservatism in the initial estimate of failure probability. The method is highly tunable, has no systemic bias towards false positives or false negatives, and is robust to mis-specification of its input parameters, making it suitable for a wide range of use cases and risk tolerances.
 
 The output of the test includes both a pass/fail result, and a confidence interval for the true failure rate among data sets, allowing users to make informed decisions about the reliability of their code and the potential risks associated with it. The method is designed to be computationally efficient, making it suitable for use in CI pipelines and other time-sensitive contexts.
 
 \subsection{Comparison to Other Methods}
 
-Below we outline existing approaches to the problem, and their limitations compared to the proposed BIOD method.
+Below we outline existing approaches to the problem, and their limitations compared to the proposed BOAST method.
 
 \subsubsubsection{Fixed-budget testing}
 
@@ -57,11 +57,11 @@ Below we outline existing approaches to the problem, and their limitations compa
 \begin{figure}[ht!]
     \centering
     \import{latex-src/visuals}{flowchart}
-    \caption{Flowchart of the BIOD testing procedure.}
-    \label{fig:biod_flowchart}
+    \caption{Flowchart of the BOAST testing procedure.}
+    \label{fig:boast_flowchart}
 \end{figure}
 
-The BIOD method consists of three main phases, depicted in Figure \ref{fig:biod_flowchart}: the estimation phase, the iterative testing phase, and the output phase. 
+The BOAST method consists of three main phases, depicted in Figure \ref{fig:boast_flowchart}: the estimation phase, the iterative testing phase, and the output phase. 
 
 We begin by defining the following parameters and constants used throughout the algorithm:
 
@@ -85,7 +85,7 @@ $p$ should be selected to be a very conservative underestimate of the true point
 
 $q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk. For many users, $\operatorname{pass\_ratio}$ and $q$ could be conflated, since they both reflect differing aspects of the user's tolerance for risk. However they are kept separate to allow for more advanced use cases where the user may wish to set a high confidence level for catching edge cases, but a lower pass ratio to allow for known issues or an allowable non-zero failure rate. The advantage of this is that the user can be more certain that any failures observed are due to real issues, rather than random chance.
 
-The sections below describe the 3-phase approach for the BIOD method.
+The sections below describe the 3-phase approach for the BOAST method.
 
 \subsubsection{Estimation Phase}
 Given $n$ the number of items per set $X$, and $p$ the point-wise lower-bound estimate for outlier frequency, we calculate an initial conservative estimate for the set-wise probability of failure $p_\text{fail}$:
@@ -170,7 +170,7 @@ The final test result can then be determined by comparing $r_\text{obs}$ to the 
     \end{cases}
 \]
 
-In order to provide a robust estimate of the true underlying failure rate amongst data sets from the sample collected by BIOD, we construct a 95\% Wilson score confidence interval \cite{wilson1927}. This method is chosen for its superior performance compared to other methods such as the normal approximation interval, particularly in cases of small sample sizes or extreme proportions, which are common in our testing context.
+In order to provide a robust estimate of the true underlying failure rate amongst data sets from the sample collected by BOAST, we construct a 95\% Wilson score confidence interval \cite{wilson1927}. This method is chosen for its superior performance compared to other methods such as the normal approximation interval, particularly in cases of small sample sizes or extreme proportions, which are common in our testing context.
 
 The interval bounds are calculated as follows:
 \begin{equation}

@@ -99,8 +99,8 @@ fn generate_ref_tables() {
         for &n in NS.iter() {
             print!("{n:0e}\t");
             for &p in PS.iter() {
-                let biod = biod::State::new(
-                    biod::Options {
+                let boast = boast::State::new(
+                    boast::Options {
                         confidence: q,
                         outlier_probability: p,
                         pass_ratio: 0.0,
@@ -109,7 +109,7 @@ fn generate_ref_tables() {
                     n,
                 );
 
-                let k = biod.k(biod.p_fail());
+                let k = boast.k(boast.p_fail());
 
                 print!("{k}\t");
             }

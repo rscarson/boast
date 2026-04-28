@@ -1,4 +1,4 @@
-This crate is an implementation of the [BIOD](https://github.com/rscarson/baysian_iterative_outlier_detection/blob/master/bayesian_iterative_outlier_detection.draft.pdf) testing algorithm for same-size transformed data sets
+This crate is an implementation of the [BOAST](https://github.com/rscarson/boast/blob/master/boast.draft.pdf) testing algorithm for same-size transformed data sets
 
 It is mostly designed for use in numerical library or statistical property testing
 
@@ -18,7 +18,7 @@ use polyfit::{
     transforms::{ApplyNoise, Strength}
 };
 
-use biod::{Options, DataSource, assert_randomized};
+use boast::{Options, DataSource, assert_randomized};
 
 /// Given a data set, apply gaussian noise with a stdev of 0.01
 fn transform_data(data: &[(f64, f64)], seed: u64) -> Vec<(f64, f64)> {

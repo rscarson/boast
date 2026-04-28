@@ -1,6 +1,6 @@
 @echo off
 set src=latex-src\0_main.tex
-set dst=bayesian_iterative_outlier_detection.draft.pdf
+set dst=boast.draft.pdf
 set tmp=tmp
 
 rem First LuaLaTeX run

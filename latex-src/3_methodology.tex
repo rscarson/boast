@@ -25,7 +25,7 @@
                 \item A trial fails if the sum of all extreme outliers exceeds $3$ in absolute value.  
             \end{itemize}
             \item Record the observed failure rate across trials as the simulated true $p_\text{fail}$.  
-            \item For each $n$, calculate the corresponding conservative initial estimate of $p_\text{fail}$ using the BIOD method:
+            \item For each $n$, calculate the corresponding conservative initial estimate of $p_\text{fail}$ using the BOAST method:
             \begin{itemize}
                 \item Confidence level: $0.99$  
                 \item Outlier probability: $0.0027$ (approximate probability of $|x| > 3\sigma$ in a normal distribution)  
@@ -37,12 +37,12 @@
 
         \begin{itemize}
             \item $p_\text{fail, true}$: Observed failure rate from simulations.  
-            \item $p_\text{fail, calc}$: Calculated conservative estimate of $p_\text{fail}$ using BIOD.
+            \item $p_\text{fail, calc}$: Calculated conservative estimate of $p_\text{fail}$ using BOAST.
         \end{itemize}
 
     \subsubsection{Hypothesis.}
 
-        BIOD is expected to yield a calculated $p_\text{fail, calc}$ that is less than or equal to the observed $p_\text{fail, true}$ across all tested set sizes $n$.
+        BOAST is expected to yield a calculated $p_\text{fail, calc}$ that is less than or equal to the observed $p_\text{fail, true}$ across all tested set sizes $n$.
 
     \subsubsection{Results.}
 
@@ -51,15 +51,15 @@
 
     \subsubsection{Analysis / Interpretation.}
 
-        The results confirm the hypothesis that the BIOD-calculated $p_\text{fail}$ is a conservative underestimate of the true simulated $p_\text{fail}$ across all 
+        The results confirm the hypothesis that the BOAST-calculated $p_\text{fail}$ is a conservative underestimate of the true simulated $p_\text{fail}$ across all 
         dataset sizes tested.
 
-        By following the same trend as the true $p_\text{fail}$, the BIOD estimate avoids the trap of underestimating by enough to make initial $k$ too large to be useful,
+        By following the same trend as the true $p_\text{fail}$, the BOAST estimate avoids the trap of underestimating by enough to make initial $k$ too large to be useful,
         as $n$ increases, while still providing a reliable conservative estimate.
 
     \subsubsection{Summary / Recommendation.}
 
-        The BIOD method provides a reliable conservative estimate of $p_\text{fail}$, without trend inversion as $n$ varies, making it suitable for this application.
+        The BOAST method provides a reliable conservative estimate of $p_\text{fail}$, without trend inversion as $n$ varies, making it suitable for this application.
 
 \subsection{Experiment 2: Predicted k to Observed k to Failure}
 \label{sec:p_fail_experiment2}
@@ -72,7 +72,7 @@
     \end{figure}
 
     \paragraph{Objective.}
-    To verify that the predicted number of iterations $k$ to failure from BIOD encompasses the observed number of iterations $k$ to 
+    To verify that the predicted number of iterations $k$ to failure from BOAST encompasses the observed number of iterations $k$ to 
     failure across a range of dataset sizes $n$.
 
     \subsubsection{Setup.}
@@ -87,7 +87,7 @@
             \end{itemize}
             \item For each trial, record the number of iterations $k$ taken to find a failing set  
             \item Take the mean and standard deviation of observed $k$ across trials.
-            \item After all trials for a given $n$, calculate the predicted $k$ to failure using the BIOD method:
+            \item After all trials for a given $n$, calculate the predicted $k$ to failure using the BOAST method:
             \begin{itemize}
                 \item Confidence level: $0.99$  
                 \item Outlier probability: $0.0027$ (approximate probability of $|x| > 3\sigma$ in a normal distribution)  
@@ -100,12 +100,12 @@
         \begin{itemize}
             \item $k_\text{obs, mean}$: Mean observed iterations to failure from simulations.  
             \item $k_\text{obs, stdev}$: Standard deviation of observed iterations to failure from simulations.  
-            \item $k_\text{predicted}$: Predicted iterations to failure using BIOD.
+            \item $k_\text{predicted}$: Predicted iterations to failure using BOAST.
         \end{itemize}
 
     \subsubsection{Hypothesis.}
 
-        The BIOD is expected to yield a predicted $k_\text{predicted}$ that is greater than or equal to the mean observed $k_\text{obs, mean}$ across all tested set sizes $n$.
+        The BOAST is expected to yield a predicted $k_\text{predicted}$ that is greater than or equal to the mean observed $k_\text{obs, mean}$ across all tested set sizes $n$.
 
     \subsubsection{Results.}
 
@@ -116,15 +116,15 @@
 
     \subsubsection{Analysis / Interpretation.}
 
-        The results confirm the hypothesis that the BIOD-predicted $k$ to failure is a conservative overestimate of the mean observed $k$ to failure across all
+        The results confirm the hypothesis that the BOAST-predicted $k$ to failure is a conservative overestimate of the mean observed $k$ to failure across all
         dataset sizes tested.
 
-        This means that for a well specified test, BIOD's predicted $k$ will likely include a failure within that number of iterations, providing confidence in
+        This means that for a well specified test, BOAST's predicted $k$ will likely include a failure within that number of iterations, providing confidence in
         the method's reliability.
 
     \subsubsection{Summary / Recommendation.}
 
-        The BIOD method provides a reliable conservative prediction of iterations to failure, making it suitable for this application.
+        The BOAST method provides a reliable conservative prediction of iterations to failure, making it suitable for this application.
 
 \subsection{Experiment 3: Confidence Interval on p\_fail Estimates}
 \label{sec:p_fail_experiment3}
@@ -132,19 +132,19 @@
     \begin{figure}[ht!]
         \centering
         \import{latex-src/visuals}{p_fail_confidence}
-        \caption{Graph showing the mean and standard deviation of lower-bound confidence intervals on the sample of iterations observed by BIOD from a simulation of 10,000 trials, compared to the simulated true $p_\text{fail}$ for various dataset sizes $n$, and for various values of point-wise $p$. Green was deliberately underestimated, blue was exact, and red was deliberately overestimated. Markers indicate the number of iterations $k$ performed by BIOD at each point.}
+        \caption{Graph showing the mean and standard deviation of lower-bound confidence intervals on the sample of iterations observed by BOAST from a simulation of 10,000 trials, compared to the simulated true $p_\text{fail}$ for various dataset sizes $n$, and for various values of point-wise $p$. Green was deliberately underestimated, blue was exact, and red was deliberately overestimated. Markers indicate the number of iterations $k$ performed by BOAST at each point.}
         \label{fig:p_fail_experiment3}
     \end{figure}
 
     \paragraph{Objective.}
-    To verify that the calculated $p_\text{fail}$ from BIOD provides accurate confidence intervals that encompass the observed $p_\text{fail}$ across a range of dataset sizes $n$ and point-wise $p$ values.
+    To verify that the calculated $p_\text{fail}$ from BOAST provides accurate confidence intervals that encompass the observed $p_\text{fail}$ across a range of dataset sizes $n$ and point-wise $p$ values.
 
     \subsubsection{Setup.}
 
         \begin{itemize}
             \item Vary set size $n$ logarithmically from $1e0$ to $1e5$.
             \item Test $10{,}000$ sets for each combination of $n$, to calculate observed $p_\text{fail}$.
-            \item Run BIOD with the same results to calculate confidence intervals on $p_\text{fail}$ for each value of point-wise $p$:
+            \item Run BOAST with the same results to calculate confidence intervals on $p_\text{fail}$ for each value of point-wise $p$:
             \begin{itemize}
                 \item Underestimate of $p$: $p_\text{outlier} = 1e-4$  
                 \item Exact $p$: $p_\text{outlier} = 0.0027$ (approximate probability of $|x| > 3\sigma$ in a normal distribution)  
@@ -157,18 +157,18 @@
 
     \begin{itemize}
         \item $p_\text{fail}$: True failure rate from simulations.  
-        \item $p_\text{fail, biod, min}$: Lower bound of BIOD-calculated confidence interval for $p_\text{fail}$.  
-        \item $p_\text{fail, biod, max}$: Upper bound of BIOD-calculated confidence interval for $p_\text{fail}$.
-        \item $p_\text{fail, obs}$: Observed failure rate in the sample BIOD selects.  
+        \item $p_\text{fail, boast, min}$: Lower bound of BOAST-calculated confidence interval for $p_\text{fail}$.  
+        \item $p_\text{fail, boast, max}$: Upper bound of BOAST-calculated confidence interval for $p_\text{fail}$.
+        \item $p_\text{fail, obs}$: Observed failure rate in the sample BOAST selects.  
     \end{itemize}
 
     \subsubsection{Hypothesis.}
 
-        The BIOD-calculated confidence intervals for $p_\text{fail}$ are expected to encompass the observed $p_\text{fail}$ for accurate and underestimated point-wise $p$ values, and to potentially miss for overestimated point-wise $p$ values, across all tested set sizes $n$.
+        The BOAST-calculated confidence intervals for $p_\text{fail}$ are expected to encompass the observed $p_\text{fail}$ for accurate and underestimated point-wise $p$ values, and to potentially miss for overestimated point-wise $p$ values, across all tested set sizes $n$.
 
     \subsubsection{Results.}
 
-        As shown in Figure~\ref{fig:p_fail_experiment3}, the calculated confidence intervals for $p_\text{fail}$ from BIOD successfully encompass the observed $p_\text{fail}$ for both all tested set sizes $n$ even for badly specified point-wise $p$ values.
+        As shown in Figure~\ref{fig:p_fail_experiment3}, the calculated confidence intervals for $p_\text{fail}$ from BOAST successfully encompass the observed $p_\text{fail}$ for both all tested set sizes $n$ even for badly specified point-wise $p$ values.
 
         When point-wise $p$ is underestimated (green), the confidence intervals are narrower and more accurate, closely tracking the observed $p_\text{fail}$.
 
@@ -178,15 +178,15 @@
 
     \subsubsection{Analysis / Interpretation.}
 
-    These results show that BIOD is robust to badly specified point-wise $p$ parameters, but gains significant accuracy when point-wise $p$ is well specified or conservative (i.e., underestimated).
+    These results show that BOAST is robust to badly specified point-wise $p$ parameters, but gains significant accuracy when point-wise $p$ is well specified or conservative (i.e., underestimated).
 
-    An overly conservative (underestimated) point-wise $p$ leads to tighter confidence intervals, due to the larger number of iterations BIOD performs in this case, improving the accuracy of the $p_\text{fail}$ estimate.
+    An overly conservative (underestimated) point-wise $p$ leads to tighter confidence intervals, due to the larger number of iterations BOAST performs in this case, improving the accuracy of the $p_\text{fail}$ estimate.
 
-    An overly aggressive (overestimated) point-wise $p$ leads to wider confidence intervals, especially for small $n$, due to the smaller number of iterations BIOD performs in this case, reducing the accuracy of the $p_\text{fail}$ estimate. However, as $n$ increases, the effect of point-wise $p$ mis-specification diminishes, and the confidence intervals converge towards those obtained with exact point-wise $p$.
+    An overly aggressive (overestimated) point-wise $p$ leads to wider confidence intervals, especially for small $n$, due to the smaller number of iterations BOAST performs in this case, reducing the accuracy of the $p_\text{fail}$ estimate. However, as $n$ increases, the effect of point-wise $p$ mis-specification diminishes, and the confidence intervals converge towards those obtained with exact point-wise $p$.
 
     \subsubsection{Summary / Recommendation.}
 
-    The BIOD method provides reliable confidence intervals for $p_\text{fail}$ estimates, particularly when point-wise $p$ is well specified or underestimated, but is still useful when point-wise $p$ is overestimated.
+    The BOAST method provides reliable confidence intervals for $p_\text{fail}$ estimates, particularly when point-wise $p$ is well specified or underestimated, but is still useful when point-wise $p$ is overestimated.
 
 \subsection{Experiment 4: Damping Constant Effect on k floor}
 \label{sec:damping_experiment1}
@@ -259,7 +259,7 @@
 
     \paragraph{Objective.}
     To investigate the relationship between bias, $p_\text{fail}$, and pass ratio.
-    $p_\text{fail}$ is calculated using $p$, $q$ and $n$, and so between it and $\operatorname{pass\_ratio}$ we can explore the bias behavior of BIOD across the parameter space in the base-case of $p_s = 1$.
+    $p_\text{fail}$ is calculated using $p$, $q$ and $n$, and so between it and $\operatorname{pass\_ratio}$ we can explore the bias behavior of BOAST across the parameter space in the base-case of $p_s = 1$.
 
     \subsubsection{Setup.}
 
@@ -290,7 +290,7 @@
             \end{cases}
         \]
         \item Draw a true failure probability $p_\text{fail, true}$ from a uniform distribution over the determined range.
-        \item Run BIOD using the failure rate found, noting the $\operatorname{pass\_ratio}$ value at the end of the run, the initial estimate for $k$ and the number of iterations actually performed.
+        \item Run BOAST using the failure rate found, noting the $\operatorname{pass\_ratio}$ value at the end of the run, the initial estimate for $k$ and the number of iterations actually performed.
         \item Compute bias as $p_\text{fail, true} - \operatorname{pass\_ratio}$.
         \item Compute the mean and standard deviation of bias across all iterations for each $\operatorname{pass\_ratio}$ value.
     \end{itemize}
@@ -307,8 +307,8 @@
 
         \begin{itemize}
             \item $p_\text{fail, true}$: True failure probability drawn from the defined piecewise distribution, magnifying the presence of segments of the parameter space that are more likely to be encountered in practice, while still covering the full range of $p_\text{fail}$ values.
-            \item $p_\text{fail}$: Calculated failure probability from BIOD.
-            \item $\operatorname{pass\_ratio}$: Pass ratio parameter provided to BIOD.
+            \item $p_\text{fail}$: Calculated failure probability from BOAST.
+            \item $\operatorname{pass\_ratio}$: Pass ratio parameter provided to BOAST.
             \item $bias$: Difference between true failure probability and observed pass ratio. The mean of bias represents systematic error, while the standard deviation represents variability in the error.
         \end{itemize}
 
@@ -328,7 +328,7 @@
 
     \subsubsection{Analysis / Interpretation.}
 
-    Since the parameters tested involve all of BIOD's inputs except for prior strength, this experiment establishes that BIOD's bias behavior is not predictable from inputs, and will be a factor of prior strength alone.
+    Since the parameters tested involve all of BOAST's inputs except for prior strength, this experiment establishes that BOAST's bias behavior is not predictable from inputs, and will be a factor of prior strength alone.
 
     The lack of correlation between bias and $p_\text{fail}$ implies a lack of a statistically significant effect of $p_\text{fail}$ on bias, and the mean near $0.0$ across all $\operatorname{pass\_ratio}$ values implies no systemic bias in either direction across the parameter space.
     
@@ -336,7 +336,7 @@
 
     \subsubsection{Summary / Recommendation.}
 
-    These results indicate that prior strength is the key parameter influencing bias in BIOD, and should be the focus of further investigation.
+    These results indicate that prior strength is the key parameter influencing bias in BOAST, and should be the focus of further investigation.
 
     It suggests that $p_s$ is not a function of inputs, but a constant that can be pre-computed to achieve desired bias characteristics.
     
@@ -352,7 +352,7 @@
     \end{figure}
 
     \paragraph{Objective.}
-    To investigate the relationship between prior strength, bias, and computational cost in BIOD.
+    To investigate the relationship between prior strength, bias, and computational cost in BOAST.
 
     \subsubsection{Setup.}
 
@@ -372,7 +372,7 @@
                 \end{cases}
             \]
             \item Draw a true failure probability $p_\text{fail, true}$ from a uniform distribution over the determined range.
-            \item Run BIOD using the failure rate found, noting the $\operatorname{pass\_ratio}$ value at the end of the run, the initial estimate for $k$ and the number of iterations actually performed.
+            \item Run BOAST using the failure rate found, noting the $\operatorname{pass\_ratio}$ value at the end of the run, the initial estimate for $k$ and the number of iterations actually performed.
             \item Compute bias as $p_\text{fail, true} - \operatorname{pass\_ratio}$.
             \item Compute the fraction of initial $k$ actually performed: $\frac{k_\text{performed}}{k_\text{initial}}$.
         \end{itemize}
@@ -385,7 +385,7 @@
 
     \begin{itemize}
         \item $p_\text{fail, true}$: True failure probability drawn from the defined piecewise distribution, magnifying the presence of segments of the parameter space that are more likely to be encountered in practice, while still covering the full range of $p_\text{fail}$ values.
-        \item $p_s$: Prior strength parameter provided to BIOD.
+        \item $p_s$: Prior strength parameter provided to BOAST.
         \item $bias$: Difference between true failure probability and observed pass ratio. The mean of bias represents systematic error, while the standard deviation represents variability in the error.
         \item $compute\_fraction$: Fraction of initial $k$ actually performed, representing computational cost.
     \end{itemize}
@@ -427,7 +427,7 @@
     \end{figure}
 
     \paragraph{Objective.}
-    To use the results from the experiment in Section~\ref{sec:ps_experiment2_3} to derive a recommended prior strength value for BIOD based on desired bias characteristics.
+    To use the results from the experiment in Section~\ref{sec:ps_experiment2_3} to derive a recommended prior strength value for BOAST based on desired bias characteristics.
     Based on the monotonic, sigmoidal behavior observed, we selected the hill equation as a suitable model.
 
     \subsubsection{Setup.}
@@ -476,7 +476,7 @@
     \subsubsection{Definition of Metrics.}
 
         \begin{itemize}
-            \item $p_s$: Prior strength parameter provided to BIOD.
+            \item $p_s$: Prior strength parameter provided to BOAST.
             \item Normalized standard deviation of bias: Standard deviation of bias normalized to the maximum observed standard deviation across all prior strength values tested.
             \item Normalized fraction of worst-case compute performed: Fraction of worst-case compute performed normalized to the maximum observed fraction across all prior strength values tested.
             \item $r^2$: Coefficient of determination for the hill curve fits, indicating goodness of fit.
@@ -519,7 +519,7 @@
 
     \subsubsection{Summary / Recommendation.}
     
-    We recommend a prior strength value of $p_s = 3.35 \cdot 10^{6} \pm 1.98 \cdot 10^{4}$ for BIOD, balancing bias reduction and computational cost effectively for most applications.
+    We recommend a prior strength value of $p_s = 3.35 \cdot 10^{6} \pm 1.98 \cdot 10^{4}$ for BOAST, balancing bias reduction and computational cost effectively for most applications.
 
     The small errors on both the curve fits and recommended prior strength values provide confidence in the reliability of this recommendation.
 
@@ -528,44 +528,44 @@
     \begin{figure}[ht!]
         \centering
         \import{latex-src/visuals}{estimate}
-        \caption{Graphs the true $p_\text{fail}$ values against the reported confidence intervals from BIOD for various $n$ (left) and the width of the confidence intervals against $n$ (right).}
+        \caption{Graphs the true $p_\text{fail}$ values against the reported confidence intervals from BOAST for various $n$ (left) and the width of the confidence intervals against $n$ (right).}
         \label{fig:estimate_experiment1}
     \end{figure}
 
     \paragraph{Objective.}
-    To evaluate the quality of the final $p_\text{fail}$ estimate provided by BIOD, by comparing the true $p_\text{fail}$ values from simulations against the confidence intervals reported by BIOD across a range of dataset sizes $n$.
+    To evaluate the quality of the final $p_\text{fail}$ estimate provided by BOAST, by comparing the true $p_\text{fail}$ values from simulations against the confidence intervals reported by BOAST across a range of dataset sizes $n$.
 
     \subsubsection{Setup.}
 
     We utilize a standard normal distribution $\mathcal{N}(0, 1)$ to generate synthetic datasets. A Z-test is applied as the pass/fail criterion, where a dataset of size $n$ fails if the absolute Z-score $|Z| = |\frac{1}{\sqrt{n}} \sum x_i| > c$. The threshold $c$ is analytically derived to target specific failure probabilities $p_\text{fail} \in \{0.01, 0.3, 0.9\}$. 
 
-    For each $n$ ranging from $10^0$ to $10^5$, we simulate $100 \cdot k$ datasets (where $k$ is BIOD's sample size) to establish a "ground truth" simulated failure rate. We then run BIOD with a 95\% confidence target and compare its reported Wilson interval bounds against this ground truth.
+    For each $n$ ranging from $10^0$ to $10^5$, we simulate $100 \cdot k$ datasets (where $k$ is BOAST's sample size) to establish a "ground truth" simulated failure rate. We then run BOAST with a 95\% confidence target and compare its reported Wilson interval bounds against this ground truth.
 
     \subsubsection{Definition of Metrics.}
 
     \begin{itemize}
         \item $p_\text{fail, true}$: The true failure probability obtained from the simulations for each dataset size $n$.
-        \item $p_\text{fail, biod, min}$: The lower bound of the confidence interval for $p_\text{fail}$ reported by BIOD.
-        \item $p_\text{fail, biod, max}$: The upper bound of the confidence interval for $p_\text{fail}$ reported by BIOD.
-        \item Interval width: The width of the confidence interval reported by BIOD, calculated as $p_\text{fail, biod, max} - p_\text{fail, biod, min}$.
+        \item $p_\text{fail, boast, min}$: The lower bound of the confidence interval for $p_\text{fail}$ reported by BOAST.
+        \item $p_\text{fail, boast, max}$: The upper bound of the confidence interval for $p_\text{fail}$ reported by BOAST.
+        \item Interval width: The width of the confidence interval reported by BOAST, calculated as $p_\text{fail, boast, max} - p_\text{fail, boast, min}$.
     \end{itemize}
 
     \subsubsection{Hypothesis.}
 
-    We hypothesize that the true failure probability $p_\text{fail, true}$ will consistently fall within the confidence intervals reported by BIOD across all tested dataset sizes $n$, and that the width of these confidence intervals will increase as $n$ increases, reflecting a small initial estimated $k$.
+    We hypothesize that the true failure probability $p_\text{fail, true}$ will consistently fall within the confidence intervals reported by BOAST across all tested dataset sizes $n$, and that the width of these confidence intervals will increase as $n$ increases, reflecting a small initial estimated $k$.
 
     \subsubsection{Results.}
 
-    We find that the true failure probability $p_\text{fail, true}$ indeed falls within the confidence intervals reported by BIOD for all tested dataset sizes $n$, confirming the reliability of BIOD's estimates.
+    We find that the true failure probability $p_\text{fail, true}$ indeed falls within the confidence intervals reported by BOAST for all tested dataset sizes $n$, confirming the reliability of BOAST's estimates.
 
-    While the width of the confidence intervals increases with $n$, it appears to stabilize between $n = 10^3$ and $n = 10^4$, suggesting that BIOD's sample size is sufficient to provide accurate estimates without excessive widening of the confidence intervals at larger dataset sizes.
+    While the width of the confidence intervals increases with $n$, it appears to stabilize between $n = 10^3$ and $n = 10^4$, suggesting that BOAST's sample size is sufficient to provide accurate estimates without excessive widening of the confidence intervals at larger dataset sizes.
 
     \subsubsection{Analysis / Interpretation.}
 
-    The results confirm that BIOD provides accurate confidence intervals for $p_\text{fail}$ estimates across a wide range of dataset sizes, with the true failure probability consistently falling within these intervals.
+    The results confirm that BOAST provides accurate confidence intervals for $p_\text{fail}$ estimates across a wide range of dataset sizes, with the true failure probability consistently falling within these intervals.
 
     \subsubsection{Summary / Recommendation.}
 
-    BIOD's final $p_\text{fail}$ estimates are reliable and can be confidently used for decision-making, with the understanding that confidence interval widths may increase with larger dataset sizes but remain informative.
+    BOAST's final $p_\text{fail}$ estimates are reliable and can be confidently used for decision-making, with the understanding that confidence interval widths may increase with larger dataset sizes but remain informative.
 
-    The effect can be mitigated with more conservative point-wise $p$ values, which would lead to larger initial $k$ estimates and thus more iterations performed by BIOD, improving the accuracy of the $p_\text{fail}$ estimate and reducing confidence interval widths at larger dataset sizes.
+    The effect can be mitigated with more conservative point-wise $p$ values, which would lead to larger initial $k$ estimates and thus more iterations performed by BOAST, improving the accuracy of the $p_\text{fail}$ estimate and reducing confidence interval widths at larger dataset sizes.
