@@ -1,4 +1,4 @@
-This is the repository for the BOAST paper (How Many Iterations are Enough? Bayesian Outlier-Aware Sequential Testing for Conservative Randomized Testing)
+This is the repository for the BOAST paper (How Many Iterations are Enough? Bayesian Outlier-Aware Sequential Testing for Conservative Randomized Verification)
 
 ## Structure
 
