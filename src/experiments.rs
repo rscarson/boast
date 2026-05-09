@@ -2,11 +2,11 @@ use std::path::Path;
 
 mod prior_strength;
 pub fn prior_strength_experiments() {
-    prior_strength::get_error_for_2_3();
-
     prior_strength::experiment_1();
     prior_strength::experiment_2();
     prior_strength::experiment_3();
+
+    prior_strength::get_error_for_2_3();
 
     let output = std::process::Command::new("python")
         .arg(".\\fit_ps.py")

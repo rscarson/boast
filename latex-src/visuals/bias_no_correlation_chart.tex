@@ -3,7 +3,13 @@
   \begin{axis}[
         xlabel={$p\_\text{fail}$},
         ylabel={Bias},
-        legend style={at={(1,0.5)}, anchor=east}, % east side, vertically centered
+        legend style={
+            at={(0.98,0.65)}, 
+            anchor=east, 
+            font=\tiny, 
+            cells={anchor=west},
+            nodes={inner sep=2pt, transform shape}
+        },
         grid=both,
         minor tick num=4,
         minor grid style={gray!10, thin},
@@ -19,6 +25,7 @@
     \pgfplotstableread[col sep=comma]{results/bias_experiment1.csv}\datatable
     
     \addplot+[
+        blue,
         thick,
         mark=none,
         error bars/.cd,
@@ -26,13 +33,14 @@
             y explicit,
     ] table[
         x=p_fail,
-        y=meanmean,
-        y error plus=meanstdev,
-        y error minus=meanstdev,
+        y=meanmean_p,
+        y error plus=meanstdev_p,
+        y error minus=meanstdev_p,
     ]{\datatable};
-    \addlegendentry{Mean of Bias across $r_\text{pass}$}
+    \addlegendentry{Mean of Prediction Bias across $r_\text{pass}$}
     
     \addplot+[
+        blue!40,
         thick,
         mark=none,
         error bars/.cd,
@@ -40,10 +48,40 @@
             y explicit,
     ] table[
         x=p_fail,
-        y=stdevmean,
-        y error plus=stdevstdev,
-        y error minus=stdevstdev,
+        y=stdevmean_p,
+        y error plus=stdevstdev_p,
+        y error minus=stdevstdev_p,
     ]{\datatable};
-    \addlegendentry{\sigma Bias across $r_\text{pass}$}
+    \addlegendentry{\sigma of Prediction Bias across $r_\text{pass}$}
+    
+    \addplot+[
+        red,
+        thick,
+        mark=none,
+        error bars/.cd,
+            y dir=both,
+            y explicit,
+    ] table[
+        x=p_fail,
+        y=meanmean_d,
+        y error plus=meanstdev_d,
+        y error minus=meanstdev_d,
+    ]{\datatable};
+    \addlegendentry{Mean of Decision Bias across $r_\text{pass}$}
+    
+    \addplot+[
+        red!40,
+        thick,
+        mark=none,
+        error bars/.cd,
+            y dir=both,
+            y explicit,
+    ] table[
+        x=p_fail,
+        y=stdevmean_d,
+        y error plus=stdevstdev_d,
+        y error minus=stdevstdev_d,
+    ]{\datatable};
+    \addlegendentry{\sigma of Decision Bias across $r_\text{pass}$}
   \end{axis}
 \end{tikzpicture}

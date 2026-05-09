@@ -1,0 +1,49 @@
+More detail not only on common approaches, but also recent attempts from the
+literature at solving the problem (your references are lacking in that
+respect). Ideally you should compare your approach with those recent
+attempts using a common benchmark.
+other methods: I don't see how the listed methods address the goal you
+outlined in the previous section. They each seem to address a slightly
+different issue.
+
+----------------
+
+- The introduction needs to formulate the problem more clearly in English first (leave the
+mathematical formulation for a later section), 
+
+      > Added a paragraph at the end of the introduction to summarize the problem in English
+
+- algorithm details: the values C and P_s seem arbitrary ("magic
+numbers"). Later on (in 2.5) you show how they are derived, so then
+abstain from providing a magic number here. equation (13) is what
+matters; substituting values for in the equation serves just as a
+(valuable) example.
+
+      > Fixed! Added explanation and moved values to after that
+      
+
+- 2.5 derivation. You show different values for k_floor, but be clear
+for each line what the new value for C is, and why. (the paragraph that
+follows those lines explains it, but still every line needs to be clear)
+
+      > Fixed! Added explanation for each line and moved the final value to the end of the section
+
+Formalization: 
+- Tell us immediately what the X(i) sets are
+supposed to represent in the context of your problem (I imagine a set of
+tests?); is the sequencing referring to the iterations? What is the
+overall set to which individual tests belong? Why are we drawing a fixed
+size test set for each iteration? 
+- Is the probability p of being an "extreme outlier" (this needs to be defined) the same for every set
+(seems to be, since it is not indexed by anything), and if so, why? F is
+defined, but f is not. 
+- What does a "failing set" mean? Does it mean that one test or more in the set has failed? Event E is defined as a set
+(because of the use of curly braces), but I don't think that's what was
+intended. In your goal formulation, don't put "S" inside vertical bars,
+which denote cardinality (size of the set). 
+- formalization doesn't seem to capture potential time-consumption tradeoffs mentioned
+in the intro. Unless your goal is not to find the subset of set of
+tests, but rather to stop the test-set generation sequence as soon as
+possible...
+
+      > Refined the formalization to be more clear and related all parts to the problem context

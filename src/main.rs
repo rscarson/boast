@@ -105,6 +105,8 @@ fn generate_ref_tables() {
                         outlier_probability: p,
                         pass_ratio: 0.0,
                         timeout: None,
+                        prior_strength: None,
+                        damping_constant: None,
                     },
                     n,
                 );

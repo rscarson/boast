@@ -11,7 +11,7 @@
     \end{figure}
 
     \paragraph{Objective.}
-    To verify that calculated $p_\text{fail}$ is a conservative underestimate of the true simulated $p_\text{fail}$ across a range of dataset sizes $n$.
+    To verify that calculated $p_\text{fail}$ is a conservative underestimate of the true simulated $p_\text{fail}$ across a range of dataset sizes $n$ according to the outlier-aware model of the initial $p_\text{fail}$ estimate in BOAST.
 
     \subsubsection{Setup.}
 
@@ -73,7 +73,7 @@
 
     \paragraph{Objective.}
     To verify that the predicted number of iterations $k$ to failure from BOAST encompasses the observed number of iterations $k$ to 
-    failure across a range of dataset sizes $n$.
+    failure across a range of dataset sizes $n$ according to the outlier-aware model of the initial $p_\text{fail}$ estimate in BOAST.
 
     \subsubsection{Setup.}
 
@@ -228,13 +228,13 @@
 
     \subsubsection{Results.}
 
-    The results, shown in Figure~\ref{fig:graph_table}, confirm that $C$ increases with both desired $k$ floor and pass probability $q$, ranging from $< 1$ to $> 6$ in our defined parameter space.
+    The results, shown in Figure~\ref{fig:graph_table}, confirm that $C$ increases monotonically with both desired $k$ floor and pass probability $q$, ranging from $< 1$ to $> 6$ in our defined parameter space.
 
     Narrowing the range to $C = C_{\text{mean}} \pm C_{\sigma}$ gives us a range of $1.56$ to $4.13$, where $k_{\text{floor}}$ values between $3$ and $10$ correspond to $C$ values between $1.82$ and $2.07$ for confidence levels between $0.8$ and $0.99$.
 
     \subsubsection{Analysis / Interpretation.}
 
-    The results confirm the hypothesis that $C$ increases with both desired $k$ floor and pass probability, and gives us a practical basis to verify the value found analytically in Section~\ref{sec:derivation_c}.
+    The results confirm the hypothesis that $C$ increases monotonically with both desired $k$ floor and pass probability, and gives us a practical basis to verify the value found analytically in Section~\ref{sec:derivation_c}.
 
     \subsubsection{Summary / Recommendation.}
 
@@ -264,7 +264,7 @@
     \subsubsection{Setup.}
 
     \begin{itemize}
-        \item We select $\operatorname{pass\_ratio} \in \{0.2, 0.5, 0.8, 0.9, 0.95, 0.99, 0.999\}$.
+        \item We select $\operatorname{pass\_ratio} \in \{0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99\}$.
         \item We vary $p_\text{fail}$ from $0.05$ to $0.50$ in increments of $0.01$
         \item For each $p_\text{fail}$, we compute the corresponding dataset size $n$ using:
         \[
@@ -290,49 +290,52 @@
             \end{cases}
         \]
         \item Draw a true failure probability $p_\text{fail, true}$ from a uniform distribution over the determined range.
-        \item Run BOAST using the failure rate found, noting the $\operatorname{pass\_ratio}$ value at the end of the run, the initial estimate for $k$ and the number of iterations actually performed.
-        \item Compute bias as $p_\text{fail, true} - \operatorname{pass\_ratio}$.
-        \item Compute the mean and standard deviation of bias across all iterations for each $\operatorname{pass\_ratio}$ value.
+        \item Run BOAST using the failure rate found, noting the $p_\text{fail, obs}$ value at the end of the run, the initial estimate for $k$ and the number of iterations actually performed.
+        \item Compute prediction bias as $p_\text{fail, obs} - p_\text{fail, true}$.
+        \item Compute the distance between $\operatorname{pass\_ratio}$ and $p_\text{fail, true}$, and record it for use in the analysis
+        \item Compute decision bias as $0$ if the test result matches the expected result based on $\operatorname{pass\_ratio}$ and $p_\text{fail, true}$, and the above distance if the test result does not match the expected result. This measures the quality of the final pass/fail decision made by BOAST.
+        \item Compute the mean and standard deviation of prediction bias and decision bias across all iterations for each $p_\text{fail, obs}$ value.
+        \item Compute the mean and standard deviation of the distance between $\operatorname{pass\_ratio}$ and $p_\text{fail, true}$ across all iterations for use in the analysis of decision bias.
     \end{itemize}
             
-    For each $p_\text{fail}$, compute:
+    For each $p_\text{fail}$, and for both prediction bias and decision bias, compute:
     \begin{itemize}
-        \item The mean of all bias means across all $\operatorname{pass\_ratio}$ values.
-        \item The standard deviation of all bias means across all $\operatorname{pass\_ratio}$ values.
-        \item The mean of all bias standard deviations across all $\operatorname{pass\_ratio}$ values.
-        \item The standard deviation of all bias standard deviations across all $\operatorname{pass\_ratio}$ values.
+        \item The mean of all bias means across all $p_\text{fail, obs}$ values.
+        \item The standard deviation of all bias means across all $p_\text{fail, obs}$ values.
+        \item The mean of all bias standard deviations across all $p_\text{fail, obs}$ values.
+        \item The standard deviation of all bias standard deviations across all $p_\text{fail, obs}$ values.
     \end{itemize}
 
     \subsubsection{Definition of Metrics.}
 
         \begin{itemize}
             \item $p_\text{fail, true}$: True failure probability drawn from the defined piecewise distribution, magnifying the presence of segments of the parameter space that are more likely to be encountered in practice, while still covering the full range of $p_\text{fail}$ values.
-            \item $p_\text{fail}$: Calculated failure probability from BOAST.
+            \item $p_\text{fail}$: Calculated failure probability estimate from BOAST.
+            \item $p_\text{fail, obs}$: Observed failure rate in the collected sample.
             \item $\operatorname{pass\_ratio}$: Pass ratio parameter provided to BOAST.
-            \item $bias$: Difference between true failure probability and observed pass ratio. The mean of bias represents systematic error, while the standard deviation represents variability in the error.
+            \item Prediction bias: $p_\text{fail, obs} - p_\text{fail, true}$. This measures the quality of the sample collected by BOAST in terms of how well it estimates the true failure probability.
+            \item Decision bias: $\operatorname{pass\_ratio} - p_\text{fail, true}$ if the final result is neither a false positive nor a false negative, $0$ otherwise. This measures the quality of the final pass/fail decision made by BOAST.
         \end{itemize}
 
     \subsubsection{Hypothesis.}
 
-    We expect bias to increase proportionally with the difference between $p_\text{fail}$ and $\operatorname{pass\_ratio}$.
-
-    If $p_\text{fail}$ has a statistically significant effect on bias, we would expect to see trends in bias as $p_\text{fail}$ increases, either in the mean, or in the standard deviation, or both. 
-
-    If $\operatorname{pass\_ratio}$ has a statistically significant effect on bias, we would expect to see large error bars on the mean or standard deviation of bias within each set of trials for each $\operatorname{pass\_ratio}$ value.
+    We expect prediction bias, or the quality of the collected sample, to be a function of $p_\text{fail, obs}$, with bias increasing as $p_\text{fail, obs}$ increases, due to the increased difficulty of collecting a representative sample as failure becomes more likely. We also expect decision bias, or the quality of the final pass/fail decision, to be a function of the difference between $\operatorname{pass\_ratio}$ and the hidden variable $p_\text{fail, true}$, with bias increasing as the difference narrows, due to the increased likelihood of making an incorrect decision as the true failure probability approaches the pass ratio threshold.
 
     \subsubsection{Results.}
 
-    Contrary to our hypothesis, we find that bias remains relatively constant across the parameter space, with mean bias values clustering around $0.0$ and standard deviation of bias remaining low for all combinations of $p_\text{fail}$ and $\operatorname{pass\_ratio}$.
+    Contrary to our hypothesis, we find that as can be observed in Figure \ref{ps_experiment1} prediction bias remains relatively constant across the parameter space, with mean bias values clustering around $0.0$ and standard deviation of bias remaining low for all values of $p_\text{fail, obs}$. Both the mean and standard deviation of decision bias also remain relatively constant with a very small error, indicating that independent of $p_s$, the quality of the sample collected by BOAST is independent of the inputs to the model.
 
-    We also found that the standard deviation of bias mean and standard deviation of bias standard deviation across all $\operatorname{pass\_ratio}$ values remained low for all $p_\text{fail}$ values.
+    For decision bias, we find that similar to prediction bias, the mean bias values cluster around $0.0$ with constant variance, while the standard deviation of bias is constant across the parameter space involved in $p_\text{fail}$ and $\operatorname{pass\_ratio}$.
 
+    While the variance of the mean and standard deviation of decision bias is larger than that of prediction bias, using the raw distance $\operatorname{pass\_ratio} - p_\text{fail, true}$ in the absence of the piecewise function used for decision bias calculation, that difference is erased, with $\sigma_\text{bias, decision}$ matching $\sigma_\text{bias, prediction}$.
+    
     \subsubsection{Analysis / Interpretation.}
 
     Since the parameters tested involve all of BOAST's inputs except for prior strength, this experiment establishes that BOAST's bias behavior is not predictable from inputs, and will be a factor of prior strength alone.
 
-    The lack of correlation between bias and $p_\text{fail}$ implies a lack of a statistically significant effect of $p_\text{fail}$ on bias, and the mean near $0.0$ across all $\operatorname{pass\_ratio}$ values implies no systemic bias in either direction across the parameter space.
-    
-    The small standard deviation of bias mean and bias standard deviation across all $\operatorname{pass\_ratio}$ values implies no significant effect of $\operatorname{pass\_ratio}$ on bias, nor any statistically significant interaction effects between $\operatorname{pass\_ratio}$ and $p_\text{fail}$ on bias.
+    The lack of correlation between prediction bias and $p_\text{fail}$ implies a lack of a statistically significant effect of $p_\text{fail}$ on any form of bias, and the mean near $0.0$ across all $\operatorname{pass\_ratio}$ values implies no systemic bias in either direction across the parameter space.
+
+    Prediction bias, as the quality of the sample collected by BOAST, will be the primary driver of decision bias, as evidenced by the similar behavior of the two across the parameter space, and the matching of their standard deviations when using the raw distance $\operatorname{pass\_ratio} - p_\text{fail, true}$ for decision bias calculation.
 
     \subsubsection{Summary / Recommendation.}
 
@@ -446,6 +449,8 @@
             \item $n$: Hill coefficient, describing the steepness of the curve.
         \end{itemize}
 
+    We perform the following steps to derive the recommended prior strength value:
+
     \begin{itemize}
         \item Normalize the standard deviation of bias results to be a fraction of the maximum observed standard deviation across all prior strength values tested.
         \item Fit the hill curve function above to the normalized standard deviation of bias data using non-linear least squares optimization to find the best-fit.
@@ -500,6 +505,16 @@
         \item Normalized fraction of worst-case compute performed fit: $r^2 = 0.9991$
     \end{itemize}
 
+    For the curve of bias against $p_s$, we found the following:
+    \[
+        y = 1.0 + (0.323 - 1.0) \frac{x^0.548}{(4.77 \cdot 10^4)^0.548 + x^0.548}
+    \]
+
+    For the curve of compute against $p_s$, we found the following:
+    \[
+        y = 0.111 + (1.0 - 0.111) \frac{x^{0.639}}{(6.70 \cdot 10^5)^{0.639} + x^{0.639}}
+    \]
+
     The table of optimal prior strength $p_s$ values for various balance factors $\beta$ revealed a range of $p_s$ values corresponding to a flat region in bias where further increases in prior strength yielded minimal bias improvement while incurring higher computational costs.
 
     It also revealed small errors (most $<0.5\%$) on the values of both fits, and by extension, on the recommended prior strength values.
@@ -510,6 +525,8 @@
     \subsubsection{Analysis / Interpretation.}
 
     Both $r^2$ exceeding $0.998$ confirm the hill equation is an excellent model for both the normalized standard deviation of bias and normalized fraction of worst-case compute performed data. The tight errors on the fits further reinforce the reliability of the model.
+
+    As expected, $n$, or the steepness of the curve, was below $1$ for both curves, indicating a gradual slope towards a saturation point, rather than a sharp cliff. The $k$ values indicate that the bias curve reaches half of its maximum value at a much lower $p_s$ than the compute curve, indicating that bias is more sensitive to changes in $p_s$ at lower values, while compute continues to improve significantly as $p_s$ increases. This results in a "window of efficiency" in which bias is relatively insensitive to changes in $p_s$, while compute continues to degrade significantly.
 
     The table of optimal prior strength $p_s$ values indicates a practical range for selecting $p_s$ where the change in bias reduction becomes negligible compared to the increase in computational cost, allowing users to make informed decisions based on their specific bias tolerance and compute resource constraints.
 
@@ -528,7 +545,7 @@
     \begin{figure}[ht!]
         \centering
         \import{latex-src/visuals}{estimate}
-        \caption{Graphs the true $p_\text{fail}$ values against the reported confidence intervals from BOAST for various $n$ (left) and the width of the confidence intervals against $n$ (right).}
+        \caption{Graphs showing the true $p_\text{fail}$ values against the reported confidence intervals from BOAST for various $n$ (left) and the width of the confidence intervals against $n$ (right).}
         \label{fig:estimate_experiment1}
     \end{figure}
 

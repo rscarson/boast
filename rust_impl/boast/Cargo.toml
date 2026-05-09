@@ -1,0 +1,13 @@
+[package]
+name = "boast"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+rand = "0.9"
+serde_json = "1.0"
+boast_macros = { path = "../boast_macros" }
+
+[[bin]]
+name = "boast-cli"
+path = "bin/boast-cli.rs"

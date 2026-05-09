@@ -8,50 +8,6 @@ BOAST combines a modified Bayesian update procedure with a frequentist stopping 
 
 The output of the test includes both a pass/fail result, and a confidence interval for the true failure rate among data sets, allowing users to make informed decisions about the reliability of their code and the potential risks associated with it. The method is designed to be computationally efficient, making it suitable for use in CI pipelines and other time-sensitive contexts.
 
-\subsection{Comparison to Other Methods}
-
-Below we outline existing approaches to the problem, and their limitations compared to the proposed BOAST method.
-
-\subsubsubsection{Fixed-budget testing}
-
-\begin{itemize}
-    \item \textit{Approach} - Select a large fixed number of iterations $k$ based on heuristics, and run the test for that many iterations \cite{myers2011art}.
-    \item \textit{Advantages} - This method is simple and easy to implement
-    \item \textit{Limitations} - It does not provide any guarantees about the confidence level of detecting failure, and can be computationally expensive if $k$ is set too high. Additionally, in the case of the absence of failure, this method provides no ability to stop early, and thus can waste resources.
-\end{itemize}
-
-\subsubsubsection{Empirical convergence / burn-in heuristics}
-
-\begin{itemize}
-    \item \textit{Approach} - Test until the observed pass ratio converges to a stable value, or until a certain number of consecutive passes are observed \cite{myers2011art} \footnote{Myers et al. describe stopping rules based on reaching estimated error thresholds or elapsed testing time, which is conceptually analogous to monitoring convergence of observed pass/fail ratios.}.
-    \item \textit{Advantages} - This method can be more efficient than fixed-budget testing, as it allows for early stopping if the test appears to be consistently passing.
-    \item \textit{Limitations} - It can be sensitive to the choice of convergence criteria, and may not provide guarantees about the confidence level of detecting failure. Additionally, very rare failures may not be observed within a reasonable number of iterations, leading to false confidence in the reliability of the code.
-\end{itemize}
-
-\subsubsubsection{Worst-case / adversarial thinking}
-
-\begin{itemize}
-    \item \textit{Approach} - Design tests to specifically target edge cases and potential failure modes, rather than relying on random sampling.
-    \item \textit{Advantages} - This can be effective in catching specific known issues, and can be more efficient than random sampling if the failure modes are well understood.
-    \item \textit{Limitations} - It may not provide a comprehensive assessment of the code's reliability, and can be time-consuming to design and implement. Additionally, it may not be effective in catching unknown failure modes or edge cases that were not anticipated during test design.
-\end{itemize}
-
-\subsubsubsection{Classical statistical power analysis}
-
-\begin{itemize}
-    \item \textit{Approach} - Calculate the required sample size to achieve a desired power level for detecting a specific effect size, based on assumptions about the underlying distribution of the data and the expected failure rate \cite{cohen1988statistical}.
-    \item \textit{Advantages} - This can provide a more rigorous basis for determining the number of iterations required, and can be tailored to specific tests and failure modes.
-    \item \textit{Limitations} - It relies heavily on the accuracy of the assumptions made, and may not be robust to mis-specification of parameters. Additionally, it may not be practical in cases where the underlying distribution is unknown or difficult to model and is specific to the particular test being run, making it less generalizable.
-\end{itemize}
-
-\subsubsubsection{Fuzzing}
-
-\begin{itemize}
-    \item \textit{Approach} - Generate random or semi-random inputs to test the code, with the goal of uncovering edge cases and potential failure modes.
-    \item \textit{Advantages} - Very comprehensive; can be effective in catching a wide range of issues, including those that were not anticipated during test design.
-    \item \textit{Limitations} - Computationally expensive, as it requires a large number of test iterations to achieve a high confidence level of detecting failure. Additionally, it may not be suitable for use in CI pipelines or other time-sensitive contexts, as it can lead to long test execution times.
-\end{itemize}
-
 \subsection{Algorithm Details}
 
 \begin{figure}[ht!]
@@ -73,17 +29,23 @@ We begin by defining the following parameters and constants used throughout the 
 \end{description}
 
 \begin{description}[labelwidth=5em, leftmargin=!]
-    \item[$C = 1.864$] A damping constant reflecting the diminishing impact of additional data points on the likelihood of failure due to extreme outliers
-    \item[$p_s = 3.35 \cdot 10^{6}$] A strength parameter for the Bayesian prior, reflecting the confidence in the initial estimate of the failure probability
+    \item[$C$] A damping constant reflecting the diminishing impact of additional data points on the likelihood of failure due to extreme outliers
+    \item[$p_s$] A strength parameter for the Bayesian prior, reflecting the confidence in the initial estimate of the failure probability
 \end{description}
 
-Derivations for suggested values constant are included in Section \ref{sec:derivations}.
+Derivations for suggested values of the above constants are included in Section \ref{sec:derivations}.
 
 $q$ represents the target confidence $\gamma$ of observing a failing set within the sample population ($\Pr[E] \ge q$). It should be selected to be a reasonably conservative value, as defined in Section \ref{sec:derivations}.
 
-$p$ should be selected to be a very conservative underestimate of the true point-wise probability of extreme outliers, to ensure that the algorithm does not underestimate the required number of iterations. 
+$p$ should be selected to be a very conservative underestimate of the true point-wise probability of extreme outliers, to ensure that the algorithm does not underestimate the required number of iterations. It can be thought of as the user's prior belief about the likelihood of any individual value in the input data being unusual or extreme enough to contribute to a failure in the code under test. 
 
-$q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk. For many users, $\operatorname{pass\_ratio}$ and $q$ could be conflated, since they both reflect differing aspects of the user's tolerance for risk. However they are kept separate to allow for more advanced use cases where the user may wish to set a high confidence level for catching edge cases, but a lower pass ratio to allow for known issues or an allowable non-zero failure rate. The advantage of this is that the user can be more certain that any failures observed are due to real issues, rather than random chance.
+$q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk, and therefore a desire for more iterations to be performed.
+
+$\operatorname{pass\_ratio}$ should be selected based on the user's tolerance for test failures, for example in the case of intermittent network failures, or the effects of non-determinism in the generated data sets. 
+
+$C$, the damping constant, controls the conservatism of the initial estimate for $p_{\text{fail}}$. Its value is derived in Section \ref{sec:derivation_c} using a formulation based on the minimum number of iterations required for a test result to be considered statistically meaningful. Our recommended value for $C$ is $1.864$, which corresponds to a minimum number of iterations of 3 at a confidence level of 80\%.
+
+$p_s$, the strength of the Bayesian prior, is derived in Section \ref{sec:derivation_ps} using a method that identifies a Pareto-optimal tradeoff between the accuracy of the test and the computational cost of the test procedure. Our recommended value for $p_s$ is $3.35 \cdot 10^{6}$.
 
 The sections below describe the 3-phase approach for the BOAST method.
 
@@ -132,10 +94,10 @@ For each iteration, perform the following steps:
 
 The current value for $k$ represents the number of iterations required to have confidence $q$ of having observed at least one failure, given the current estimate for set-wise failure probability $p_{\text{fail}}$. 
 
-Thus, if $iterations \ge k$, we can be confident that we have observed at least one failure if the true failure probability is equal to or greater than our current estimate, and thus we can stop the test and move on to the output phase.
+Thus, if $iterations \ge k$, we can be confident that we would have observed at least one failure if the true failure probability is equal to or greater than our current estimate, and thus we can stop the test and move on to the output phase.
 
 \subsubsubsection{Timeout Criteria}
-To prevent infinite loops in the case of extremely low failure probabilities, we recommend implementing a timeout mechanism. If the total elapsed time for the testing process exceeds a predetermined threshold, the test should terminate and report failure due to insufficient evidence to support a claim.
+To prevent unreasonable runtimes in the case of extremely low failure probabilities in the absence of observed failure, we recommend implementing a timeout mechanism. If the total elapsed time for the testing process exceeds a predetermined threshold, the test should terminate and report failure due to insufficient evidence to support a claim.
 
 \subsubsubsection{Update Procedure}
 
@@ -216,7 +178,7 @@ We began with the form
     p' = \frac{p}{n \dot p}
 \end{align}
 
-In order to eliminate the undefined case at $n = 0$, and to ensure that $p' > p$ in all cases, we modified this to the form:
+In order to eliminate the undefined case at $n = 0$, and to ensure that $p' <= p$ in all cases, we modified this to the form:
 \begin{align}
     p' = \frac{p}{(1 + n \cdot p)}
 \end{align}
@@ -236,7 +198,7 @@ There is also a practical maximum number, above which the computation required f
 
 We will define that practical range for $k_{\text{floor}}$ to be between 3 and 10 iterations, and then we will define the lowest confidence $q$ we consider reasonably conservative to be $0.8$.
 
-The practical range for $k_{\text{floor}}$ is defined between the lowest number of iterations that could be considered valid in a test such as the Rule of Three, where $k < 3$ would produce a confidence level above 100\% for any observed pass ratio, and thus would not be useful for any real-world use case.
+The practical lower bound for $k_{\text{floor}}$ is defined by the lowest number of iterations that could be considered valid in a test such as the Rule of Three, where $k < 3$ would produce a confidence level above 100\% for any observed pass ratio, and thus would not be useful for any real-world use case.
 
 We can analyze the effect of $C$ effect on $k_{\text{floor}}$ as n approaches infinity:
 \begin{align}
@@ -277,15 +239,34 @@ C = \frac{k_{\text{floor}}}{- \ln(1 - q)}
 C = \frac{3}{- \ln(1 - 0.8)} \approx 1.864
 \]
 
-Additionally, since $k_{\text{floor}} = -C \cdot \ln(1 - q)$, we can measure the effect of varying $C$ on $k_{\text{floor}}$ for a given q:
+Additionally, since
+\[
+    k_{\text{floor}} = -C \cdot \ln(1 - q),
+\]
+we can evaluate the sensitivity of $k_{\text{floor}}$ to small variations in $C$ for a fixed confidence level of $q = 0.8$.
+
+Using the derived nominal value $C = 1.864$:
 \begin{align*}
-k_{\text{floor}} &= - C \, \ln(1 - q) \\[2mm]
-k_{\text{floor}} &= - (1.864 - 0.5) \, \ln(1 - 0.8) \approx 2.19527 \\ 
-k_{\text{floor}} &= - (1.864) \, \ln(1 - 0.8) \approx 2.99999 \\ 
-k_{\text{floor}} &= - (1.864 + 0.5) \, \ln(1 - 0.8) \approx 3.80471
+k_{\text{floor}}
+    &= -(1.864)\ln(1 - 0.8)
+    \approx 2.99999
 \end{align*}
 
-Taking into account the effect of ceil in the true calculation of $k_{\text{initial}}$, we can see that variations in $C$ of approximately $\pm 0.5$ around the nominal value of $1.864$ produce a difference of approximately $\pm 1$ in the final value, showing that this method is reasonably robust to small variations in $C$.
+Reducing $C$ by $0.5$:
+\begin{align*}
+k_{\text{floor}}
+    &= -(1.864 - 0.5)\ln(1 - 0.8)
+    \approx 2.19527
+\end{align*}
+
+Increasing $C$ by $0.5$:
+\begin{align*}
+k_{\text{floor}}
+    &= -(1.864 + 0.5)\ln(1 - 0.8)
+    \approx 3.80471
+\end{align*}
+
+Taking into account the effect of the ceiling operation in the calculation of $k_{\text{initial}}$, variations in $C$ of approximately $\pm 0.5$ around the nominal value of $1.864$ produce a change of approximately $\pm 0.804$ in $k_{\text{floor}}$, indicating that the formulation is reasonably robust to small perturbations in $C$.
 
 We will therefore recommend $C = 1.864$ as the nominal value for the damping constant.
 
@@ -310,9 +291,9 @@ For this and all experiments in this section we define bias as the difference be
 
 A positive bias indicates the test overestimated the pass rate (false negative), while a negative bias indicates the test underestimated the pass rate (false positive).
 
-Our hypothesis was that the delta between the expected level of failure $p_fail$ and the acceptable level of failure $1 - r_\text{pass}$ would be a good predictor of bias.
+Our hypothesis was that the delta between the expected level of failure $p_{\text{fail}}$ and the acceptable level of failure $1 - r_\text{pass}$ would be a good predictor of bias.
 
-However, as can be seen in Figure \ref{fig:ps_experiment1}, neither parameter had a measurable effect on bias - which appeared to be randomly distributed around 0 with a constant error regardless of the values of $p_{\text{fail}}$ and $\operatorname{pass\_ratio}$. Since $p_{\text{fail}}$ encodes for $k$, and contains both $n$ and $p$, we can infer that none of $n$, $p$, $p_{\text{fail}}$, or $k$ have a significant effect on bias, which appears to be a set function for any inputs into the model given an unknown underlying failure rate.
+However, as can be seen in Figure \ref{fig:ps_experiment1}, neither parameter had a measurable effect on bias - which appeared to be randomly distributed around 0 with a constant error regardless of the values of $p_{\text{fail}}$ and $\operatorname{pass\_ratio}$. Since $p_{\text{fail}}$ encodes for $k$, and contains both $n$ and $p$, we can infer that none of $n$, $p$, $p_{\text{fail}}$, or $k$ have a significant effect on bias, which appears to be independent of any inputs into the model given an unknown underlying failure rate.
 
 \subsubsubsection{Effect of prior strength on bias and compute}
 
@@ -322,7 +303,7 @@ We next ran the same experiment measuring the fraction of initially estimated it
 
 \subsubsubsection{Modeling the tradeoff between bias and compute}
 
-Following Experiment 3, we fit the relationship between the performed fraction of maximum iterations and $p_s$ to a pair of Hill equations \cite{Gesztelyi2012} of the form:
+Following the experiment in Section \ref{sec:derivation_ps}, we fit the relationship between the performed fraction of maximum iterations and $p_s$ to a pair of Hill equations \cite{Gesztelyi2012} of the form:
 \begin{align}
     y = y_{min} + (y_{max} - y_{min}) \frac{x^n}{k^n + x^n}
 \end{align}
@@ -342,23 +323,17 @@ The hill curve was chosen due to the need for a monotonic, saturating sigmoid fu
 
 This resulted in a good fit for both bias and compute ($R^2 > 0.998$ for both curves).
 
-The fits had the following parameters:
-\begin{itemize}
-    \item Bias
-    \begin{itemize}
-        \item $n = 0.548$
-        \item $k = 4.77 \cdot 10^4$
-        \item $y_{min} = 1.0$
-        \item $y_{max} = 0.323$
-    \end{itemize}
-    \item Compute
-    \begin{itemize}
-        \item $n = 0.639$
-        \item $k = 6.70 \cdot 10^5$
-        \item $y_{min} = 0.111$
-        \item $y_{max} = 1.0$
-    \end{itemize}
-\end{itemize}
+For the curve of bias against $p_s$, we found the following:
+\[
+    y = 1.0 + (0.323 - 1.0) \frac{x^0.548}{(4.77 \cdot 10^4)^0.548 + x^0.548}
+\]
+
+For the curve of compute against $p_s$, we found the following:
+\[
+    y = 0.111 + (1.0 - 0.111) \frac{x^{0.639}}{(6.70 \cdot 10^5)^{0.639} + x^{0.639}}
+\]
+
+As expected, $n$, or the steepness of the curve, was below $1$ for both curves, indicating a gradual slope towards a saturation point, rather than a sharp cliff. The $k$ values indicate that the bias curve reaches half of its maximum value at a much lower $p_s$ than the compute curve, indicating that bias is more sensitive to changes in $p_s$ at lower values, while compute continues to degrade significantly as $p_s$ increases. This results in a "window of efficiency" in which bias is relatively insensitive to changes in $p_s$, while compute continues to improve significantly, which we can use to select a recommended value for $p_s$.
 
 \subsubsubsection{Selecting a recommended prior strength}
 

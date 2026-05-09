@@ -1,6 +1,6 @@
 @echo off
 set src=latex-src\0_main.tex
-set dst=boast.draft.pdf
+set dst=Carson_BOAST_Technical_White_Paper_2026.pdf
 set tmp=tmp
 
 rem First LuaLaTeX run

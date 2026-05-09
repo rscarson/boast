@@ -1,11 +1,18 @@
 [package]
-name = "boast"
+name = "boast_experiments"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-boast = { path = "rust_impl" }
+boast = { path = "rust_impl/boast" }
+
+# For experiments
 rand = "0.9"
 rand_distr = "0.5"
 statrs = "0.18.0"
 csv = "1.4.0"
+
+# For examples
+serde_json = "1.0"
+reqwest = { version = "0.13", features = ["json", "blocking"] }
+polyfit = "0.11.0"

@@ -46,6 +46,8 @@ pub fn experiment_1() {
                 outlier_probability: 0.0027, // Approximate probability of a point being outside 3 std devs in a normal distribution
                 pass_ratio: 0.0,
                 timeout: None,
+                prior_strength: None,
+                damping_constant: None,
             },
             n,
         );
@@ -109,6 +111,8 @@ pub fn experiment_2() {
                 outlier_probability: 0.0027, // Approximate probability of a point being outside 3 std devs in a normal distribution
                 pass_ratio: 0.0,
                 timeout: None,
+                prior_strength: None,
+                damping_constant: None,
             },
             n,
         );
@@ -166,6 +170,8 @@ pub fn experiment_3() {
                     outlier_probability: p,
                     pass_ratio: 0.95,
                     timeout: None,
+                    prior_strength: None,
+                    damping_constant: None,
                 },
                 n,
             );

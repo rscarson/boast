@@ -64,6 +64,8 @@ pub fn experiment_1_for_fail(p_fail: f64) -> Vec<[f64; 6]> {
                 outlier_probability: 0.0027, // Approximate probability of a point being outside 3 std devs in a normal distribution
                 pass_ratio: 0.0,
                 timeout: None,
+                prior_strength: None,
+                damping_constant: None,
             },
             n,
         );
