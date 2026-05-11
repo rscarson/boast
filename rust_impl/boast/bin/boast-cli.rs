@@ -156,6 +156,7 @@ impl CliArgs {
 
                 "--test" => {
                     let value = args_iter.next().ok_or("Missing value for test command")?;
+                    let value = value.replace("\\\"", "\"").replace("\\'", "'");
                     test_cmd = Some(value);
                 }
 
@@ -170,6 +171,7 @@ impl CliArgs {
                     let value = args_iter
                         .next()
                         .ok_or("Missing value for command data source")?;
+                    let value = value.replace("\\\"", "\"").replace("\\'", "'");
                     data_source = Some(DataSource::Command(value));
                 }
 

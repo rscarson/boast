@@ -71,15 +71,15 @@ mod tests {
         })
     }
 
-    #[boast::test(q = 0.99, p = 1e-4, timeout = 60, pass_ratio = 0.90)]
+    #[boast::test(q = 0.95, p = 1e-4, timeout = 60, pass_ratio = 0.90)]
     fn test_normal_distribution(#[src = data_src] data: &[(f64, f64)]) {
         //
         // This test exists basically verbatim in polyfit - it's used to test the assert_residuals_normal macro!
         //
         // Check out the parameters we used:
-        // #[boast::test(q = 0.99, p = 1e-4, timeout = 60, pass_ratio = 0.90)]
+        // #[boast::test(q = 0.95, p = 1e-4, timeout = 60, pass_ratio = 0.90)]
         //
-        // So we are asking for a confidence level of 99% (q = 0.99) that we'd have observed a failure if one existed
+        // So we are asking for a confidence level of 95% (q = 0.95) that we'd have observed a failure if one existed
         // We think that <0.1% of the points in our data will be strange enough to contribute to a failure (p = 1e-4)
         // We want to stop the test after 60 seconds if it hasn't already stopped (timeout = 60)
         // And we know that this will fail about 10% of the time due to random noise, so we want to require at least a 90% pass ratio

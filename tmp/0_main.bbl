@@ -1,10 +1,5 @@
 \begin{thebibliography}{1}
 
-\bibitem{cohen1988statistical}
-Jacob Cohen.
-\newblock {\em Statistical Power Analysis for the Behavioral Sciences}.
-\newblock Routledge, 2nd edition, 1988.
-
 \bibitem{Everett1963}
 Hugh Everett.
 \newblock Generalized lagrange multiplier method for solving problems of
@@ -16,10 +11,30 @@ Rudolf Gesztelyi, Judit Zsuga, Balázs Varga, Bela Juhasz, and Arpad Tosaki.
 \newblock The hill equation and the origin of quantitative pharmacology.
 \newblock {\em Archive for History of Exact Sciences}, 66, 07 2012.
 
+\bibitem{hsu2026classifierbasednonparametricsequentialhypothesis}
+Chia-Yu Hsu and Shubhanshu Shekhar.
+\newblock Classifier-based nonparametric sequential hypothesis testing, 2026.
+
+\bibitem{kundu2025efficientadaptivesequentialprocedure}
+Sampurna Kundu, Jayant Jha, and Subir~Kumar Bhandari.
+\newblock An efficient adaptive sequential procedure for simple hypotheses with
+  expression for finite number of applications of less effective treatment,
+  2025.
+
 \bibitem{myers2011art}
 Glenford~J. Myers, Corey Sandler, and Tom Badgett.
 \newblock {\em The Art of Software Testing}.
 \newblock Wiley, 3 edition, 2011.
+
+\bibitem{salako2025conservativesoftwarereliabilityassessments}
+Kizito Salako and Rabiu~Tsoho Muhammad.
+\newblock Conservative software reliability assessments using collections of
+  bayesian inference problems, 2025.
+
+\bibitem{wald1945sequential}
+A.~Wald.
+\newblock Sequential tests of statistical hypotheses.
+\newblock {\em The Annals of Mathematical Statistics}, 16(2):117--186, 1945.
 
 \bibitem{wilson1927}
 Edwin~B. Wilson.

@@ -16,7 +16,9 @@ Finally, the use of a frequentist stopping criterion based on confidence interva
 
 \subsection{Future Work}
 
-Future work could explore the extend of the independence assumption made in the BOAST model, particularly in datasets where outliers may exhibit correlations. Additionally, we investigated only the effects of normal outliers; investigating alternative prior distributions or adaptive prior strength mechanisms could potentially enhance the algorithm's performance or applicability to a wider range of failure modes.
+Future work could explore the extent of the independence assumption made in the BOAST model, particularly in datasets where outliers may exhibit correlations. Additionally, we investigated only the effects of normal outliers; investigating alternative prior distributions or adaptive prior strength mechanisms could potentially enhance the algorithm's performance or applicability to a wider range of failure modes.
+
+The presence in the derivation of the closed-form expression for the damping constant $C$ of the cumulative hazard function, and the units in iterations per nat that it implies, suggests the possibility of a more rigorous theoretical analysis of the implications of $C$. By deriving our recommended value of $C = 1.864$ from the rule of three ($k >= 3$), and Pareto-optimal thresholds ($q >= 0.8$), $C$ may be a heuristic threshold for the minimum required iterations per unit of uncertainty for many testing scenarios.
 
 \subsection{Example Applications}
 
@@ -54,19 +56,19 @@ Let:
 
 The team's goal is to estimate the probability of performance degradation due to the new feature, while accounting for the presence of outliers in the performance data. BOAST can be applied here to adaptively determine the number of iterations needed to reliably estimate this probability and to provide confidence intervals, ensuring that the testing process is both efficient and informative for decision-making regarding the new feature's integration.
 
-\subsubsection{Model Robustness Testing}
+\subsubsection{Robustness Testing}
 
-\paragraph{Scenario} A machine learning model is being developed for a critical application, and the developers want to ensure that the model is robust to abnormal or mispecified input data. They decide to use randomized testing to evaluate the model's performance under various conditions, including the presence of extreme outliers.
+\paragraph{Scenario} A function must be tested to meet certain robustness criteria, such as handling edge cases or extreme inputs, but which is known and expected to fail on a small proportion of inputs. The goal is to estimate the failure probability of the function under these conditions, since distribution of the synthetic test data is well understood.
 
-Let $P = \{ X^{(1)}, X^{(2)}, \dots \}$ be a countably infinite population of sets representing input data for the model, where each set is of fixed size $n$.
+Let $P = \{ X^{(1)}, X^{(2)}, \dots \}$ be a countably infinite population of sets representing inputs to the function, where each set is of fixed size $n$.
 
 Let:
     \[
         F : \mathcal{X} \to \{0,1\}, \quad F(X^{(j)}) =
         \begin{cases}
-        1 & \text{if the model's output is correct for } X^{(j)} \\
-        0 & \text{if the model's output is unacceptable for } X^{(j)}
+        1 & \text{if the function performs robustly on } X^{(j)} \\
+        0 & \text{if the function fails on } X^{(j)}
         \end{cases}
     \]
 
-The developers' goal is to estimate the probability that the model produces unacceptable outputs due to the input data. BOAST can be applied to adaptively determine the number of iterations needed to reliably estimate this probability and to provide confidence intervals, ensuring that the model's robustness is thoroughly evaluated while maintaining efficiency in the testing process.
+The tester's goal is to estimate the probability of failure under these conditions, and assert that it is below a certain threshold with high confidence. BOAST can be applied to adaptively determine the number of iterations needed to reliably estimate this failure probability, to provide confidence intervals, and to test the assertion that the failure probability is below the specified threshold, ensuring that the function meets the required robustness criteria.

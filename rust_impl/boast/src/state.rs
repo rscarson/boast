@@ -125,7 +125,7 @@ impl State {
         ((1.0 - self.q()).ln() / (1.0 - p_fail).ln()).abs().ceil() as usize
     }
 
-    /// The pointwise probability of an extreme outlier causing a failure
+    /// The pointwise probability of an outlier causing a failure
     #[must_use]
     pub fn p(&self) -> f64 {
         self.options.outlier_probability
@@ -179,15 +179,15 @@ impl State {
         self.passes
     }
 
-    /// To reflect the diminishing impact of additional data points on the likelihood of failure due to extreme outliers, we use a damping factor to adjust p based on n.
+    /// To reflect the diminishing impact of additional data points on the likelihood of failure due to outliers, we use a damping factor to adjust p based on n.
     /// This takes the form of a linear fractional damping function `1 / (1 + Cx)`, where C is a constant chosen to reflect the diminishing impact of additional data points
-    /// and x is the expected number of extreme outliers in the data set, `n * p`.
+    /// and x is the expected number of outliers in the data set, `n * p`.
     #[must_use]
     pub fn damping_fraction(&self) -> f64 {
         1.0 / (1.0 + (self.damping_constant * self.n as f64 * self.p()))
     }
 
-    /// Calculate p', the adjusted value for p, the probability of observing an extreme outlier that can trigger a failure
+    /// Calculate p', the adjusted value for p, the probability of observing an outlier that can trigger a failure
     #[must_use]
     pub fn p_prime(&self) -> f64 {
         let damping_fraction = self.damping_fraction();

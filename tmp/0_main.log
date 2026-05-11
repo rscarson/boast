@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  8 MAY 2026 13:02
+This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  11 MAY 2026 15:49
  restricted system commands enabled.
  file:line:error style messages enabled.
 **latex-src/0_main.tex
@@ -810,6 +810,10 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 
 
 
+
+
+
+
 Package pgfplots info on input line 18: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 PGFPlots: reading {results/p_fail_experiment1.csv}
@@ -866,10 +870,6 @@ PGFPlots: reading {results/p_fail_histogram.csv}
 
 
 
-LaTeX Warning: Reference `ps_experiment1' on page 24 undefined on input line 32
-5.
-
-
 
 Package pgfplots info on input line 21: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
@@ -877,6 +877,8 @@ PGFPlots: reading {results/bias_experiment2.csv}
 Package pgfplots info on input line 61: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 PGFPlots: reading {results/bias_experiment3.csv}
+
+
 
 
 
@@ -961,9 +963,6 @@ LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10.95> not available
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-19>
  ***********
-
-LaTeX Warning: There were undefined references.
-
 Package rerunfilecheck Info: File `0_main.out' has not changed.
-(rerunfilecheck)             Checksum: 5016FC13BF7483A3EA42108D9A0E51FB;13530.
+(rerunfilecheck)             Checksum: 9BDEF9686D644BDB16EAE76EF4BFADE2;14161.
 

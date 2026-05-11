@@ -23,27 +23,25 @@ We begin by defining the following parameters and constants used throughout the 
 
 \begin{description}[labelwidth=2em, leftmargin=!]
     \item[$n$] The size of the data set under test.
-    \item[$p$] The probability of any individual point being an extreme outlier, chosen conservatively (underestimation of the true risk).
-    \item[$q$] The desired confidence that enough iterations have been performed to detect a theoretical bug caused by an extreme outlier.
+    \item[$p$] The likelihood of any individual point being an outlier, chosen conservatively (underestimation of the true risk).
+    \item[$q$] The desired confidence that enough iterations have been performed to have observed a failure, if one was present.
     \item[$\operatorname{pass\_ratio}$] The required ratio of passes in the observed sample of iterations to consider the test a success.
 \end{description}
 
 \begin{description}[labelwidth=5em, leftmargin=!]
-    \item[$C$] A damping constant reflecting the diminishing impact of additional data points on the likelihood of failure due to extreme outliers
-    \item[$p_s$] A strength parameter for the Bayesian prior, reflecting the confidence in the initial estimate of the failure probability
+    \item[$C$] A damping constant reflecting the diminishing impact of additional data points on the likelihood of failure.
+    \item[$p_s$] A strength parameter for the Bayesian prior, reflecting the confidence in the initial estimate of the failure probability.
 \end{description}
 
 Derivations for suggested values of the above constants are included in Section \ref{sec:derivations}.
 
-$q$ represents the target confidence $\gamma$ of observing a failing set within the sample population ($\Pr[E] \ge q$). It should be selected to be a reasonably conservative value, as defined in Section \ref{sec:derivations}.
+$q$ represents the target confidence $\gamma$ of observing a failing set within the sample population ($\Pr[E] \ge q$). It should be selected to be a reasonably conservative value, as defined in Section \ref{sec:derivations}, with higher values indicating a lower tolerance for risk, and therefore a desire for more iterations to be performed.
 
-$p$ should be selected to be a very conservative underestimate of the true point-wise probability of extreme outliers, to ensure that the algorithm does not underestimate the required number of iterations. It can be thought of as the user's prior belief about the likelihood of any individual value in the input data being unusual or extreme enough to contribute to a failure in the code under test. 
+$p$ should be selected to be a conservative underestimate of the true point-wise probability of outliers, to ensure that the algorithm does not underestimate the required number of iterations. It can be thought of as the user's prior belief about the likelihood of any individual value in the input data being unusual or extreme enough to contribute to a failure in the code under test. 
 
-$q$ should be selected based on the user's tolerance for risk, with higher values indicating a lower tolerance for risk, and therefore a desire for more iterations to be performed.
+$\operatorname{pass\_ratio}$ should be selected based on the user's tolerance for test failures, for example in the case of intermittent network failures, or the effects of non-determinism in the generated data sets. This parameter should be optional, defaulting to $1.0$ (i.e., no failures observed in the sample), and can be used to allow for a certain level of observed failure in the sample while still considering the test a success, which may be desirable in cases where some level of failure is expected or acceptable.
 
-$\operatorname{pass\_ratio}$ should be selected based on the user's tolerance for test failures, for example in the case of intermittent network failures, or the effects of non-determinism in the generated data sets. 
-
-$C$, the damping constant, controls the conservatism of the initial estimate for $p_{\text{fail}}$. Its value is derived in Section \ref{sec:derivation_c} using a formulation based on the minimum number of iterations required for a test result to be considered statistically meaningful. Our recommended value for $C$ is $1.864$, which corresponds to a minimum number of iterations of 3 at a confidence level of 80\%.
+$C$, the damping constant, controls the conservatism of the initial estimate for $p_{\text{fail}}$. Our recommended value is derived in Section \ref{sec:derivation_c} using a formulation based on the minimum number of iterations required for a test result to be considered statistically meaningful, and a value of confidence that is considered the minimum reasonably conservative value. Our recommended value for $C$ is $1.864$, which corresponds to a minimum number of iterations of 3 at a confidence level of 80\%.
 
 $p_s$, the strength of the Bayesian prior, is derived in Section \ref{sec:derivation_ps} using a method that identifies a Pareto-optimal tradeoff between the accuracy of the test and the computational cost of the test procedure. Our recommended value for $p_s$ is $3.35 \cdot 10^{6}$.
 
@@ -58,7 +56,7 @@ Given $n$ the number of items per set $X$, and $p$ the point-wise lower-bound es
 
 $p'$ is used to model the saturation of the effect of individual outliers on set-wise failure. It represents the inverse relationship $\frac{1}{np}$ between number of expected outliers, and their effects on iterations $k$. For more on the derivation of this form, and the recommended value for $C = 1.864 $, see Section \ref{sec:derivation_c}. We call the ratio applied to $p$ the "damping fraction", since it serves to dampen the effect of increasing $n$ on $p_{\text{fail}}$.
 
-For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure $F(X)$ due to the presence of extreme outliers in the set.
+For small $n$ the probability of failure is roughly linear in $n$, consistent with a binomial model where $p_{\text{fail}} \approx 1 - (1 - p)^n$. As $n$ becomes large, the damping fraction saturates, and the effective failure probability approaches a limiting value $p_{\text{fail}} = 1 - e^{-1/C}$. In this regime, the number of failures per iteration can be approximated by a Poisson distribution with $\lambda = \frac{1}{C}$, reflecting the diminishing returns of increasing data set size on the likelihood of failure $F(X)$ due to the presence of outliers in the set.
 
 An initial estimate for the number of iterations $k$ required to achieve the desired confidence $q$ of observing at least one failing set in the collected sample $S$ (that is to say the likelihood estimate for $\Pr[E]$ given $q$) can then be computed as:
 \begin{align}
@@ -162,7 +160,7 @@ These can be communicated succinctly as:
 
 The proposed method has several limitations and assumptions worth noting: \begin{itemize}
     \item The size of the data set $n$ must be known in advance, and should remain constant throughout the testing process.
-    \item The method assumes that the probability of extreme outliers is independent and normally distributed across the data set, which may not hold true in all cases.
+    \item The method assumes that the probability of outliers is independent and normally distributed across the data set, which may not hold true in all cases.
     \item Very small $n$ ($< 100$) require a very large number of iterations to converge; this is an expected by-product of the model used, and we therefore recommend $n >= 100$
 \end{itemize}
 
@@ -231,6 +229,7 @@ Solving for $C$:
     C = \frac{k_{\text{floor}}}{- \ln(1 - q)}
 \end{align}
 
+Since $- \ln(1 - q)$ represents the cumulative hazard function, we can interpret $C$ in units of $\operatorname{iterations} / nat$, or the average number of iterations required to resolve $1 nat$ of uncertainty.
 
 If we set $k_{\text{floor}} = 3$ as a reasonable minimum number of iterations that could be considered useful, given a lower-bound on the value for $q$ we consider reasonably conservative of $q = 0.8$, we find:
 \[
@@ -268,13 +267,16 @@ k_{\text{floor}}
 
 Taking into account the effect of the ceiling operation in the calculation of $k_{\text{initial}}$, variations in $C$ of approximately $\pm 0.5$ around the nominal value of $1.864$ produce a change of approximately $\pm 0.804$ in $k_{\text{floor}}$, indicating that the formulation is reasonably robust to small perturbations in $C$.
 
-We will therefore recommend $C = 1.864$ as the nominal value for the damping constant.
+We will therefore recommend $C = 1.864$ as the nominal value for the damping constant. Since $1$ nat represents $\approx 1.44$ bits of information, this corresponds to an average of $1.292$ iterations per bit of information gained about the failure probability.
 
 To verify this value, we generated the $k_{\text{floor}}$ produced by a variety of values within the defined parameters space, and then took $C_{\text{mean}}$ and $C_{\sigma}$ to produce the table and graph shown in Figure \ref{fig:graph_table}.
 
 From the table we can see that the $C \approx 1.8$ produces values right in our defined practical range for $k_{\text{floor}}$ across a variety of confidence levels, confirming our derived value.
 
 If a use-case requires a different practical range for $k_{\text{floor}}$ or $q$, a value for $C$ should be selected using the formula above (13).
+
+We recommend selecting a new value if the scale of compute available for regular testing is significantly above what is standard. $k_{\text{floor}}$ should then be selected to reflect the smallest number of iterations that would have statistical meaning in context. $q$ should be selected to reflect the confidence in that floor, that is the resistance to growing $k_{\text{floor}}$ as $q$ increases.
+
 
 \subsubsection{Prior Strength - ps}\label{sec:derivation_ps}
 

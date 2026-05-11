@@ -66,48 +66,65 @@ The problem we address in this paper is: \textit{How can we efficiently and reli
 
     Corresponding to the problem of finding the minimum number of samples needed to have a confidence of at least ( \gamma ) that we have observed at least one failing set, given the unknown relationship between outliers and failure, and the probability of outliers in the population.
 
-\subsection{Related Work}
 
-Common approaches to mitigate this risk include fixed-budget testing, empirical convergence, fuzzing, or Monte Carlo estimation, all of which have their own drawbacks and limitations which limit their applicability to this problem. One major limitation of many approaches is the compute or time cost of running the test, making their use in CI pipelines or other time-sensitive contexts difficult
+\subsection{Comparison to Other Methods}
 
-\subsection{Comparison to Classical Testing Methods}
+Below we outline existing approaches to the problem, and their limitations compared to the proposed BOAST method.
 
-\subsubsubsection{Fixed-budget testing}
+\subsubsection{Common Approaches in Industry}
 
-\begin{itemize}
-    \item \textit{Approach} - Select a large fixed number of iterations $k$ based on heuristics, and run the test for that many iterations \cite{myers2011art}.
-    \item \textit{Advantages} - This method is simple and easy to implement
-    \item \textit{Limitations} - It does not provide any guarantees about the confidence level of detecting failure, and can be computationally expensive if $k$ is set too high. Additionally, in the case of the absence of failure, this method provides no ability to stop early, and thus can waste resources.
-\end{itemize}
+    This problem is commonly addressed in industry using heuristics such as fixed-budget testing, adversarial thinking, or fuzzing, depending on the specific context of the test and the resources available.
 
-\subsubsubsection{Empirical convergence / burn-in heuristics}
+    \subsubsubsection{Fixed-budget testing}
 
-\begin{itemize}
-    \item \textit{Approach} - Test until the observed pass ratio converges to a stable value, or until a certain number of consecutive passes are observed \cite{myers2011art} \footnote{Myers et al. describe stopping rules based on reaching estimated error thresholds or elapsed testing time, which is conceptually analogous to monitoring convergence of observed pass/fail ratios.}.
-    \item \textit{Advantages} - This method can be more efficient than fixed-budget testing, as it allows for early stopping if the test appears to be consistently passing.
-    \item \textit{Limitations} - It can be sensitive to the choice of convergence criteria, and may not provide guarantees about the confidence level of detecting failure. Additionally, very rare failures may not be observed within a reasonable number of iterations, leading to false confidence in the reliability of the code.
-\end{itemize}
+        \paragraph{Approach} Select a large fixed number of iterations $k$ based on heuristics, and run the test for that many iterations \cite{myers2011art}.
 
-\subsubsubsection{Worst-case / adversarial thinking}
+        \paragraph{Advantages} This method is simple and easy to implement.
 
-\begin{itemize}
-    \item \textit{Approach} - Design tests to specifically target edge cases and potential failure modes, rather than relying on random sampling.
-    \item \textit{Advantages} - This can be effective in catching specific known issues, and can be more efficient than random sampling if the failure modes are well understood.
-    \item \textit{Limitations} - It may not provide a comprehensive assessment of the code's reliability, and can be time-consuming to design and implement. Additionally, it may not be effective in catching unknown failure modes or edge cases that were not anticipated during test design.
-\end{itemize}
+        \paragraph{Limitations} It does not provide any guarantees about the confidence level of detecting failure and as such can result in a number of iterations that is either too low (leading to false confidence in the reliability of the code), or too high (leading to wasted computational resources). Additionally, in the case of the absence of failure, this method provides no ability to stop early, and thus can waste resources.
 
-\subsubsubsection{Classical statistical power analysis}
+    \subsubsubsection{Worst-case / adversarial thinking}
 
-\begin{itemize}
-    \item \textit{Approach} - Calculate the required sample size to achieve a desired power level for detecting a specific effect size, based on assumptions about the underlying distribution of the data and the expected failure rate \cite{cohen1988statistical}.
-    \item \textit{Advantages} - This can provide a more rigorous basis for determining the number of iterations required, and can be tailored to specific tests and failure modes.
-    \item \textit{Limitations} - It relies heavily on the accuracy of the assumptions made, and may not be robust to mis-specification of parameters. Additionally, it may not be practical in cases where the underlying distribution is unknown or difficult to model and is specific to the particular test being run, making it less generalizable.
-\end{itemize}
+        \paragraph{Approach} Design tests to specifically target edge cases and potential failure modes, rather than relying on random sampling.
 
-\subsubsection{Comparison to Recent Methods}
+        \paragraph{Advantages} Very effective for regression testing (i.e., testing for specific known issues) and can be more efficient than random sampling if the failure modes are well understood.
 
-\subsubsubsection{Thing A}
-blah blah
+        \paragraph{Limitations} Cannot provide a comprehensive assessment of the code's reliability, and can be time-consuming to design and implement. Additionally, is not effective in catching unknown failure modes or edge cases that were not anticipated during test design.
 
-\subsubsubsection{Thing B}
-blah blah
+    \subsubsubsection{Fuzzing}
+
+        \paragraph{Approach} Generate random or semi-random inputs to test the code, with the goal of uncovering edge cases and potential failure modes.
+
+        \paragraph{Advantages} Very comprehensive; can be effective in catching a wide range of issues, including those that were not anticipated during test design. Can also be designed with stopping criteria based on observed pass/fail ratios, which can provide some efficiency benefits compared to fixed-budget testing.
+
+        \paragraph{Limitations} Computationally expensive, as it requires a large number of test iterations to achieve a high confidence level of detecting failure. Fuzzing is also not normally suitable for use in CI pipelines or other time-sensitive contexts, as it requires a large number of iterations. Additionally, it does not take into account domain-specific knowledge about the data or the code under test, which can lead to inefficient testing and missed failure modes.
+
+    \subsubsection{SPRT (Sequential Probability Ratio Test)}
+
+        \paragraph{Approach} A statistical method for testing a hypothesis by evaluating the likelihood ratio of observed data under two competing hypotheses, and stopping when the ratio exceeds a certain threshold \cite{wald1945sequential}.
+
+        \paragraph{Advantages} Provides a rigorous statistical framework for testing hypotheses and can be more efficient than fixed-budget testing. It also attempts to minimize the expected number of samples needed to reach a conclusion.
+
+        \paragraph{Limitations} For noisy data, SPRT can theoretically require an infinite number of samples to reach a conclusion, as the likelihood ratio may never exceed the threshold. Additionally, SPRT does not take into account domain-specific knowledge about the data or the code under test, which can lead to inefficient testing and missed failure modes.
+
+\subsubsection{Recent Literature}
+
+    \subsubsubsection{An Efficient Adaptive Sequential Procedure for Simple Hypotheses with Expression for Finite Number of Applications of Less Effective Treatment}
+
+        \paragraph{Approach} Unlike SPRT, this method addresses the problem of drift in case of noisy data, reducing the probability of infinite sampling. It does so by introducing an adaptive procedure that adjusts the testing strategy based on observed data \cite{kundu2025efficientadaptivesequentialprocedure}.
+
+        \paragraph{Advantages} Just as rigorous as SPRT, while addressing the excessive sampling problem in the case of noisy data. Additionally it introduces a closed-form expression for the expected number of inferior allocations, allowing for precise estimation of the "cost of testing" in live environments.
+
+        \paragraph{Limitations} Like SPRT, this method does not take into account domain-specific knowledge about the data or the code under test, which can lead to inefficient testing and missed failure modes. Additionally, while it addresses the issue of infinite sampling in noisy data, it may still require a large number of samples to reach a conclusion in cases where the data is particularly noisy or the difference between hypotheses is small, and as such may not be suitable for use in time-sensitive contexts such as CI pipelines.
+
+    \subsubsubsection{Classifier-Based Nonparametric Sequential Hypothesis Testing}
+
+        \paragraph{Approach} A hypothesis testing method that uses a classifier to distinguish between two distributions, and applies sequential testing to determine which distribution is more likely \cite{hsu2026classifierbasednonparametricsequentialhypothesis}.
+
+        \paragraph{Advantages} Adaptable to complex data distributions, and claims to identify the ground-truth almost surely.
+
+        \paragraph{Limitations} Requires training a classifier, which can be computationally expensive and often domain or application specific. Additionally, the method does not provide guarantees on the number of samples needed to reach a conclusion, and can be inefficient in cases where the distributions are similar. The use of a classifier also introduces computational overhead and potential for overfitting in the training process.
+
+    \subsubsubsection{Conservative Software Reliability Assessments Using Collections of Bayesian Inference Problems}
+
+        Building on the work of Salako and Muhammad \cite{salako2025conservativesoftwarereliabilityassessments}, who demonstrate that conservative software reliability testing requires moving away from singular statistical frameworks in favor of mixed approaches, this paper proposes a hybrid Bayesian-frequentist approach to the problem of conservative software reliability testing. While the work of Salako and Muhammad utilizes a collection of Bayesian methodologies, our method employs an intentionally conservative Bayesian component to inform the stop criterion of a sequential frequentist test, which we demonstrate to be effective in controlling computational cost while maintaining reliable estimates of failure probability.

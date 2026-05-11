@@ -1,5 +1,5 @@
 use syn::{
-    Expr, Ident, Lit, Token,
+    Expr, Ident, Token,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
 };
@@ -31,33 +31,13 @@ impl Parse for MacroArgs {
 }
 
 pub struct TestArgs {
-    pub confidence: f64,
-    pub outlier_rate: f64,
-    pub pass_ratio: Option<f64>,
-    pub timeout: Option<u64>,
+    pub confidence: Expr,
+    pub outlier_rate: Expr,
+    pub pass_ratio: Option<Expr>,
+    pub timeout: Option<Expr>,
 }
 impl Parse for TestArgs {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        fn get_float_arg(value: &Expr) -> syn::Result<f64> {
-            if let Expr::Lit(expr_lit) = value
-                && let Lit::Float(lit_float) = &expr_lit.lit
-            {
-                return lit_float.base10_parse::<f64>();
-            }
-            Err(syn::Error::new_spanned(value, "Expected a float literal"))
-        }
-        fn get_int_arg(value: &Expr) -> syn::Result<u64> {
-            if let Expr::Lit(expr_lit) = value
-                && let Lit::Int(lit_int) = &expr_lit.lit
-            {
-                return lit_int.base10_parse::<u64>();
-            }
-            Err(syn::Error::new_spanned(
-                value,
-                "Expected an integer literal",
-            ))
-        }
-
         let mut confidence = None;
         let mut outlier_rate = None;
         let mut pass_ratio = None;
@@ -67,10 +47,10 @@ impl Parse for TestArgs {
         for arg in macro_args.args {
             let key = arg.key.to_string();
             match key.as_str() {
-                "confidence" | "q" => confidence = Some(get_float_arg(&arg.value)?),
-                "outlier_rate" | "p" => outlier_rate = Some(get_float_arg(&arg.value)?),
-                "pass_ratio" => pass_ratio = Some(get_float_arg(&arg.value)?),
-                "timeout" => timeout = Some(get_int_arg(&arg.value)?),
+                "confidence" | "q" => confidence = Some(arg.value),
+                "outlier_rate" | "p" => outlier_rate = Some(arg.value),
+                "pass_ratio" => pass_ratio = Some(arg.value),
+                "timeout" => timeout = Some(arg.value),
                 _ => return Err(syn::Error::new_spanned(arg.key, "Unknown argument key")),
             }
         }

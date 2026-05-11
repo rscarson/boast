@@ -18,11 +18,11 @@
         \begin{itemize}
             \item Vary set size $n$ logarithmically from $1e0$ to $1e5$.
             \item For each $n$, run $10{,}000$ trials.
-            \item For each trial, simulate failure due to extreme outliers, accounting for interactions between outliers:
+            \item For each trial, simulate failure due to outliers, accounting for interactions between outliers:
             \begin{itemize}
                 \item Draw $n$ samples from a standard normal distribution ($\mu=0$, $\sigma=1$).  
-                \item Define extreme outliers as samples with absolute value greater than $3$.  
-                \item A trial fails if the sum of all extreme outliers exceeds $3$ in absolute value.  
+                \item Define outliers as samples with absolute value greater than $3$.  
+                \item A trial fails if the sum of all outliers exceeds $3$ in absolute value.  
             \end{itemize}
             \item Record the observed failure rate across trials as the simulated true $p_\text{fail}$.  
             \item For each $n$, calculate the corresponding conservative initial estimate of $p_\text{fail}$ using the BOAST method:
@@ -82,8 +82,8 @@
             \item For each $n$, run $10{,}000$ trials.
             \begin{itemize}
                 \item Draw $n$ samples from a standard normal distribution ($\mu=0$, $\sigma=1$).  
-                \item Define extreme outliers as samples with absolute value greater than $3$.  
-                \item A trial fails if the sum of all extreme outliers exceeds $3$ in absolute value.  
+                \item Define outliers as samples with absolute value greater than $3$.  
+                \item A trial fails if the sum of all outliers exceeds $3$ in absolute value.  
             \end{itemize}
             \item For each trial, record the number of iterations $k$ taken to find a failing set  
             \item Take the mean and standard deviation of observed $k$ across trials.
@@ -323,7 +323,7 @@
 
     \subsubsection{Results.}
 
-    Contrary to our hypothesis, we find that as can be observed in Figure \ref{ps_experiment1} prediction bias remains relatively constant across the parameter space, with mean bias values clustering around $0.0$ and standard deviation of bias remaining low for all values of $p_\text{fail, obs}$. Both the mean and standard deviation of decision bias also remain relatively constant with a very small error, indicating that independent of $p_s$, the quality of the sample collected by BOAST is independent of the inputs to the model.
+    Contrary to our hypothesis, we find that as can be observed in Figure \ref{fig:ps_experiment1} prediction bias remains relatively constant across the parameter space, with mean bias values clustering around $0.0$ and standard deviation of bias remaining low for all values of $p_\text{fail, obs}$. Both the mean and standard deviation of decision bias also remain relatively constant with a very small error, indicating that independent of $p_s$, the quality of the sample collected by BOAST is independent of the inputs to the model.
 
     For decision bias, we find that similar to prediction bias, the mean bias values cluster around $0.0$ with constant variance, while the standard deviation of bias is constant across the parameter space involved in $p_\text{fail}$ and $\operatorname{pass\_ratio}$.
 
@@ -336,6 +336,8 @@
     The lack of correlation between prediction bias and $p_\text{fail}$ implies a lack of a statistically significant effect of $p_\text{fail}$ on any form of bias, and the mean near $0.0$ across all $\operatorname{pass\_ratio}$ values implies no systemic bias in either direction across the parameter space.
 
     Prediction bias, as the quality of the sample collected by BOAST, will be the primary driver of decision bias, as evidenced by the similar behavior of the two across the parameter space, and the matching of their standard deviations when using the raw distance $\operatorname{pass\_ratio} - p_\text{fail, true}$ for decision bias calculation.
+
+    In addition, the very slight negative mean of decision bias across the parameter space may reflect a slight preference for A Type I error (false positive) over Type II error (false negative), which may be a desirable property in many applications, as it would lead to more conservative decisions. Due to the small magnitude of this bias, far below the standard deviation of the mean, it may not hold practical significance.
 
     \subsubsection{Summary / Recommendation.}
 
