@@ -325,9 +325,9 @@
 
     Contrary to our hypothesis, we find that as can be observed in Figure \ref{fig:ps_experiment1} prediction bias remains relatively constant across the parameter space, with mean bias values clustering around $0.0$ and standard deviation of bias remaining low for all values of $p_\text{fail, obs}$. Both the mean and standard deviation of decision bias also remain relatively constant with a very small error, indicating that independent of $p_s$, the quality of the sample collected by BOAST is independent of the inputs to the model.
 
-    For decision bias, we find that similar to prediction bias, the mean bias values cluster around $0.0$ with constant variance, while the standard deviation of bias is constant across the parameter space involved in $p_\text{fail}$ and $\operatorname{pass\_ratio}$.
+    For decision bias, we find that similar to prediction bias, the mean bias values cluster around $0.0$ with constant variance, while the standard deviation of bias is constant across the parameter space involved in $p_\text{fail}$ and $\operatorname{pass\_ratio}$. It is worth noting that the mean of decision bias across the parameter space is slightly negative, but with the standard deviation of the mean including $0.0$.
 
-    While the variance of the mean and standard deviation of decision bias is larger than that of prediction bias, using the raw distance $\operatorname{pass\_ratio} - p_\text{fail, true}$ in the absence of the piecewise function used for decision bias calculation, that difference is erased, with $\sigma_\text{bias, decision}$ matching $\sigma_\text{bias, prediction}$.
+    While the variance of the mean and standard deviation of decision bias is larger than that of prediction bias, using the raw distance $\operatorname{pass\_ratio} - p_\text{fail, true}$ in the absence of the piecewise function used for decision bias calculation, that difference is erased, with $\sigma_\text{bias, decision} \approx \sigma_\text{bias, prediction}$, and $\sigma_\text{bias, decision} < \sigma_\text{bias, prediction}$
     
     \subsubsection{Analysis / Interpretation.}
 

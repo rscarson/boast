@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  11 MAY 2026 15:49
+This is LuaHBTeX, Version 1.22.0 (MiKTeX 25.4 Portable) (format=lualatex 2025.10.23)  11 MAY 2026 21:41
  restricted system commands enabled.
  file:line:error style messages enabled.
 **latex-src/0_main.tex
@@ -871,14 +871,14 @@ PGFPlots: reading {results/p_fail_histogram.csv}
 
 
 
+
+
 Package pgfplots info on input line 21: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 PGFPlots: reading {results/bias_experiment2.csv}
 Package pgfplots info on input line 61: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 PGFPlots: reading {results/bias_experiment3.csv}
-
-
 
 
 
